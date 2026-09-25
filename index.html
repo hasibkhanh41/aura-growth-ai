@@ -1,846 +1,1562 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AURA Growth AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AURA Growth AI — Dashboard</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
+<style>
+:root{
+--bg:#03050d;
+--panel:#080b18;
+--panel2:#0b1020;
+--line:#29294f;
+--purple:#8b2cff;
+--violet:#6d38ff;
+--pink:#ff0fa8;
+--orange:#ff8a00;
+--green:#00e6a8;
+--text:#f7f7ff;
+--muted:#9a9bb7;
+}
 
-    body {
-      background: #080d1c;
-      color: white;
-      min-height: 100vh;
-    }
+*{box-sizing:border-box}
 
-    button {
-      cursor: pointer;
-    }
+body{
+margin:0;
+background:
+radial-gradient(circle at 75% 0%,rgba(115,38,255,.18),transparent 28%),
+radial-gradient(circle at 25% 100%,rgba(255,0,150,.10),transparent 30%),
+var(--bg);
+color:var(--text);
+font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+min-height:100vh;
+}
 
-    /* AUTH */
+button,input{font:inherit}
+button{cursor:pointer}
 
-    #authPage {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+.app{display:flex;min-height:100vh}
 
-    .auth-box {
-      width: 100%;
-      max-width: 420px;
-      background: #11182b;
-      border: 1px solid #293653;
-      border-radius: 16px;
-      padding: 35px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
-    }
+/* SIDEBAR */
+.sidebar{
+width:244px;
+border-right:1px solid #171936;
+background:linear-gradient(180deg,#050713,#060817);
+padding:22px 14px;
+position:fixed;
+left:0;
+top:0;
+bottom:0;
+z-index:10;
+}
 
-    .logo {
-      font-size: 30px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
+.brand{
+display:flex;
+align-items:center;
+gap:11px;
+padding:4px 12px 25px;
+}
 
-    .logo span {
-      color: #7657ff;
-    }
+.logo{
+width:38px;
+height:38px;
+border-radius:12px;
+background:linear-gradient(135deg,#ff3dbf,#7b31ff);
+display:grid;
+place-items:center;
+font-size:22px;
+font-weight:900;
+box-shadow:0 0 28px rgba(184,30,255,.45);
+}
 
-    .auth-subtitle {
-      color: #91a0bd;
-      margin-bottom: 28px;
-    }
+.brand b{font-size:19px}
+.brand small{
+display:block;
+color:#b86cff;
+font-size:10px;
+margin-top:1px;
+}
 
-    .auth-box h2 {
-      margin-bottom: 20px;
-    }
+.nav{display:grid;gap:7px}
 
-    .input {
-      width: 100%;
-      padding: 13px;
-      margin-bottom: 14px;
-      background: #0b1122;
-      border: 1px solid #303c58;
-      border-radius: 8px;
-      color: white;
-      outline: none;
-    }
+.nav button{
+border:0;
+background:transparent;
+color:#c9c9df;
+text-align:left;
+padding:13px 14px;
+border-radius:12px;
+display:flex;
+align-items:center;
+gap:12px;
+transition:.2s;
+}
 
-    .input:focus {
-      border-color: #7657ff;
-    }
+.nav button:hover{
+background:#11142a;
+color:white;
+}
 
-    .primary-btn {
-      width: 100%;
-      padding: 13px;
-      border: none;
-      border-radius: 8px;
-      background: #7657ff;
-      color: white;
-      font-size: 15px;
-      font-weight: bold;
-      margin-top: 5px;
-    }
+.nav button.active{
+background:linear-gradient(90deg,#7a1dff,#c012ef);
+color:white;
+box-shadow:0 7px 26px rgba(145,24,255,.3);
+}
 
-    .primary-btn:hover {
-      opacity: .9;
-    }
+.icon{
+width:20px;
+text-align:center;
+font-size:17px;
+}
 
-    .switch-text {
-      text-align: center;
-      margin-top: 18px;
-      color: #91a0bd;
-    }
+.bottom{
+position:absolute;
+bottom:18px;
+left:14px;
+right:14px;
+}
 
-    .switch-btn {
-      background: none;
-      border: none;
-      color: #8d76ff;
-      font-weight: bold;
-    }
+.help{
+border:1px solid #25274b;
+background:#090c19;
+border-radius:16px;
+padding:14px;
+margin-bottom:12px;
+}
 
-    #authMessage {
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 7px;
-      display: none;
-      font-size: 14px;
-    }
+.help .bot{font-size:30px}
 
-    /* DASHBOARD */
+.help b{
+display:block;
+margin:6px 0;
+}
 
-    #dashboardPage {
-      display: none;
-      min-height: 100vh;
-    }
+.help p{
+color:#8f90aa;
+font-size:12px;
+margin:0 0 12px;
+}
 
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 230px;
-      background: #0d1427;
-      border-right: 1px solid #26324c;
-      padding: 25px 15px;
-    }
+.aiBtn{
+width:100%;
+border:0;
+border-radius:10px;
+padding:10px;
+color:#fff;
+background:linear-gradient(90deg,#7527ff,#d30fd4);
+}
 
-    .brand {
-      font-size: 25px;
-      font-weight: bold;
-      margin: 0 10px 35px;
-    }
+.logout{
+width:100%;
+border:0;
+background:#251522;
+color:#ff8ba5;
+padding:11px;
+border-radius:10px;
+}
 
-    .brand span {
-      color: #7657ff;
-    }
+/* MAIN */
+.main{
+margin-left:244px;
+width:calc(100% - 244px);
+padding:18px 26px 34px;
+}
 
-    .nav-item {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 13px 15px;
-      margin-bottom: 6px;
-      border: none;
-      border-radius: 8px;
-      background: transparent;
-      color: #dce3f5;
-      font-size: 15px;
-    }
+.topbar{
+display:flex;
+align-items:center;
+gap:18px;
+margin-bottom:26px;
+}
 
-    .nav-item:hover,
-    .nav-item.active {
-      background: #202c49;
-    }
+.search{
+flex:1;
+max-width:620px;
+position:relative;
+}
 
-    .logout {
-      position: absolute;
-      bottom: 25px;
-      left: 15px;
-      right: 15px;
-      background: #291b27;
-      color: #ff9d9d;
-    }
+.search input{
+width:100%;
+border:1px solid #27284e;
+background:#080b18;
+color:white;
+border-radius:14px;
+padding:13px 45px;
+outline:none;
+}
 
-    .main {
-      margin-left: 230px;
-      padding: 35px;
-    }
+.search span{
+position:absolute;
+left:16px;
+top:11px;
+color:#9698b4;
+}
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 35px;
-    }
+.top-actions{
+margin-left:auto;
+display:flex;
+align-items:center;
+gap:12px;
+}
 
-    .topbar h1 {
-      font-size: 32px;
-    }
+.circle{
+width:40px;
+height:40px;
+border:1px solid #25274a;
+background:#090c19;
+color:#c8c9dc;
+border-radius:50%;
+}
 
-    .subtitle {
-      color: #91a0bd;
-      margin-top: 7px;
-    }
+.profile{
+display:flex;
+align-items:center;
+gap:10px;
+}
 
-    .status {
-      background: #102b21;
-      color: #40ed9b;
-      padding: 10px 15px;
-      border-radius: 20px;
-      font-size: 14px;
-    }
+.avatar{
+width:39px;
+height:39px;
+border-radius:50%;
+background:linear-gradient(135deg,#ffb04a,#753cff);
+display:grid;
+place-items:center;
+font-weight:800;
+}
 
-    .user-email {
-      color: #91a0bd;
-      font-size: 13px;
-      margin-top: 8px;
-    }
+.profile small{
+display:block;
+color:#a7a8bf;
+}
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
-      margin-bottom: 25px;
-    }
+.profile b{font-size:13px}
 
-    .card {
-      background: #11182b;
-      border: 1px solid #293653;
-      border-radius: 12px;
-      padding: 22px;
-    }
+/* HEADER */
+.page-head{
+display:flex;
+align-items:flex-end;
+justify-content:space-between;
+margin-bottom:20px;
+}
 
-    .card-title {
-      color: #91a0bd;
-      margin-bottom: 12px;
-    }
+.page-head h1{
+font-size:34px;
+margin:0 0 4px;
+letter-spacing:-1px;
+}
 
-    .card-value {
-      font-size: 30px;
-      font-weight: bold;
-    }
+.page-head p{
+margin:0;
+color:#a5a7c3;
+}
 
-    .content-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-    }
+.period{
+border:1px solid #2c2d55;
+background:#0b0e1d;
+color:white;
+border-radius:12px;
+padding:11px 14px;
+}
 
-    .panel {
-      background: #11182b;
-      border: 1px solid #293653;
-      border-radius: 12px;
-      padding: 22px;
-    }
+/* STAT CARDS */
+.stats{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:14px;
+margin-bottom:16px;
+}
 
-    .panel h2 {
-      margin-bottom: 20px;
-    }
+.card{
+background:linear-gradient(145deg,rgba(14,17,35,.97),rgba(6,9,20,.98));
+border:1px solid #29294f;
+border-radius:16px;
+box-shadow:inset 0 1px rgba(255,255,255,.025),0 14px 35px rgba(0,0,0,.18);
+}
 
-    .activity {
-      padding: 17px 0;
-      border-bottom: 1px solid #293653;
-    }
+.stat{
+padding:18px;
+position:relative;
+overflow:hidden;
+}
 
-    .activity:last-child {
-      border-bottom: none;
-    }
+.stat:after{
+content:"";
+position:absolute;
+width:90px;
+height:90px;
+border-radius:50%;
+right:-28px;
+top:-35px;
+background:radial-gradient(circle,rgba(169,0,255,.22),transparent 68%);
+}
 
-    .activity strong {
-      display: block;
-      margin-bottom: 5px;
-    }
+.stat-top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+color:#aaaaca;
+font-size:13px;
+}
 
-    .activity span {
-      color: #91a0bd;
-      font-size: 14px;
-    }
+.stat-icon{
+width:37px;
+height:37px;
+border-radius:11px;
+background:linear-gradient(135deg,#7e1fff,#d40fca);
+display:grid;
+place-items:center;
+color:#fff;
+font-weight:900;
+}
 
-    .approval {
-      background: #292112;
-      border: 1px solid #70541d;
-      padding: 17px;
-      border-radius: 9px;
-      margin-bottom: 12px;
-    }
+.stat h2{
+font-size:28px;
+margin:13px 0 5px;
+}
 
-    .approval p {
-      color: #c8bda4;
-      font-size: 14px;
-      margin-top: 7px;
-    }
+.trend{
+font-size:12px;
+color:var(--green);
+}
 
-    @media (max-width: 900px) {
-      .cards {
-        grid-template-columns: repeat(2, 1fr);
-      }
+.spark{
+height:40px;
+margin-top:10px;
+display:flex;
+gap:5px;
+align-items:end;
+}
 
-      .content-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+.spark i{
+width:8px;
+background:linear-gradient(#d10fff,#6b2cff);
+border-radius:4px 4px 0 0;
+}
 
-    @media (max-width: 650px) {
-      .sidebar {
-        position: static;
-        width: 100%;
-        height: auto;
-      }
+/* MAIN GRID */
+.grid-main{
+display:grid;
+grid-template-columns:minmax(0,1.7fr) minmax(260px,.75fr) minmax(250px,.85fr);
+gap:14px;
+margin-bottom:14px;
+}
 
-      .logout {
-        position: static;
-        margin-top: 15px;
-      }
+.panel{padding:18px}
 
-      .main {
-        margin-left: 0;
-        padding: 20px;
-      }
+.panel-title{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:14px;
+}
 
-      .topbar {
-        align-items: flex-start;
-        gap: 15px;
-        flex-direction: column;
-      }
+.panel-title h3{
+margin:0;
+font-size:17px;
+}
 
-      .cards {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+.panel-title span{
+color:#b45bff;
+font-size:12px;
+}
+
+/* CHART */
+.chart-wrap{
+height:255px;
+position:relative;
+}
+
+.chart{
+width:100%;
+height:100%;
+overflow:visible;
+}
+
+.axis{
+fill:#72758e;
+font-size:10px;
+}
+
+.gridline{
+stroke:#24263d;
+stroke-width:1;
+}
+
+.line1{
+fill:none;
+stroke:#a100ff;
+stroke-width:4;
+stroke-linecap:round;
+filter:drop-shadow(0 0 5px #a100ff);
+}
+
+.line2{
+fill:none;
+stroke:#ff9d00;
+stroke-width:3;
+stroke-linecap:round;
+filter:drop-shadow(0 0 4px #ff9d00);
+}
+
+.legend{
+display:flex;
+gap:18px;
+font-size:11px;
+color:#aaaac1;
+}
+
+.dot{
+width:8px;
+height:8px;
+display:inline-block;
+border-radius:50%;
+margin-right:6px;
+}
+
+.purple{background:#a100ff}
+.orange{background:#ff9d00}
+
+/* CAMPAIGNS */
+.campaigns{
+display:grid;
+gap:9px;
+}
+
+.campaign{
+display:flex;
+align-items:center;
+gap:10px;
+border-bottom:1px solid #20223b;
+padding:9px 0;
+}
+
+.campaign:last-child{border:0}
+
+.camp-icon{
+width:31px;
+height:31px;
+border-radius:9px;
+display:grid;
+place-items:center;
+background:#32114f;
+color:#d98aff;
+}
+
+.campaign b{font-size:12px}
+
+.campaign small{
+display:block;
+color:#74778f;
+margin-top:2px;
+}
+
+.gain{
+margin-left:auto;
+color:#00e6a8;
+font-size:12px;
+}
+
+/* DONUT */
+.donut-area{
+display:flex;
+align-items:center;
+gap:18px;
+min-height:230px;
+}
+
+.donut{
+width:150px;
+height:150px;
+border-radius:50%;
+background:conic-gradient(
+#2674ff 0 45%,
+#ff0fa8 45% 73%,
+#ff8a00 73% 88%,
+#7e32ff 88% 100%
+);
+position:relative;
+flex:none;
+}
+
+.donut:after{
+content:"";
+position:absolute;
+inset:27px;
+border-radius:50%;
+background:#080b18;
+border:1px solid #25274b;
+}
+
+.donut-center{
+position:absolute;
+z-index:1;
+inset:0;
+display:grid;
+place-items:center;
+text-align:center;
+font-weight:800;
+}
+
+.donut-center small{
+display:block;
+color:#888aa3;
+font-weight:500;
+}
+
+.traffic{
+display:grid;
+gap:12px;
+font-size:12px;
+color:#b8b9ca;
+}
+
+.traffic div{
+display:flex;
+justify-content:space-between;
+}
+
+.traffic i{
+width:8px;
+height:8px;
+border-radius:50%;
+display:inline-block;
+margin-right:7px;
+}
+
+/* BOTTOM */
+.bottom-grid{
+display:grid;
+grid-template-columns:1.1fr 1fr .85fr;
+gap:14px;
+}
+
+.activity,.recommend,.quick{
+padding:18px;
+}
+
+.row{
+display:flex;
+align-items:center;
+gap:10px;
+padding:12px 0;
+border-bottom:1px solid #20223b;
+}
+
+.row:last-child{border-bottom:0}
+
+.row-icon{
+width:31px;
+height:31px;
+border-radius:9px;
+background:#32114f;
+display:grid;
+place-items:center;
+}
+
+.row b{font-size:12px}
+
+.row small{
+display:block;
+color:#777a91;
+margin-top:2px;
+}
+
+.time{
+margin-left:auto;
+color:#77798e;
+font-size:10px;
+}
+
+/* RECOMMENDATIONS */
+.reco{
+display:flex;
+align-items:center;
+gap:10px;
+padding:10px 0;
+border-bottom:1px solid #20223b;
+}
+
+.reco:last-child{border:0}
+
+.r-icon{
+width:31px;
+height:31px;
+border-radius:9px;
+background:linear-gradient(135deg,#ff0fa8,#6f2cff);
+display:grid;
+place-items:center;
+}
+
+.reco p{
+margin:0;
+font-size:12px;
+}
+
+.reco small{
+color:#7f8198;
+}
+
+.action{
+width:72px;
+margin-left:auto;
+border:1px solid #6532c9;
+background:#241047;
+color:#fff;
+border-radius:8px;
+padding:7px 5px;
+font-size:10px;
+}
+
+/* QUICK ACTIONS */
+.quick{
+display:grid;
+gap:8px;
+}
+
+.quick button{
+display:flex;
+align-items:center;
+gap:10px;
+border:1px solid #25284a;
+background:#0b0e1c;
+color:#ddd;
+border-radius:10px;
+padding:11px;
+text-align:left;
+}
+
+.quick button:hover{
+border-color:#7f31ff;
+background:#11142a;
+}
+
+.qicon{
+width:28px;
+height:28px;
+border-radius:7px;
+background:#142d59;
+display:grid;
+place-items:center;
+color:#67b3ff;
+}
+
+/* TOAST */
+.toast{
+position:fixed;
+right:22px;
+bottom:22px;
+background:#11162a;
+border:1px solid #3b3e69;
+color:#fff;
+border-radius:12px;
+padding:12px 16px;
+display:none;
+z-index:50;
+box-shadow:0 15px 40px #0008;
+}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+.stats{grid-template-columns:repeat(2,1fr)}
+.grid-main,.bottom-grid{grid-template-columns:1fr}
+.sidebar{width:210px}
+.main{
+margin-left:210px;
+width:calc(100% - 210px);
+}
+}
+
+@media(max-width:700px){
+.sidebar{
+position:static;
+width:100%;
+min-height:auto;
+}
+
+.app{display:block}
+
+.main{
+margin:0;
+width:100%;
+padding:15px;
+}
+
+.bottom{
+position:static;
+margin-top:15px;
+}
+
+.nav{
+grid-template-columns:repeat(2,1fr);
+}
+
+.stats{
+grid-template-columns:1fr 1fr;
+}
+
+.topbar{
+flex-wrap:wrap;
+}
+
+.search{
+order:2;
+max-width:none;
+width:100%;
+}
+
+.profile div{
+display:none;
+}
+}
+</style>
 </head>
 
 <body>
 
-  <!-- ================= AUTH PAGE ================= -->
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
 
-  <section id="authPage">
+<div class="brand">
+<div class="logo">A</div>
+<div>
+<b>AURA</b>
+<small>Growth AI</small>
+</div>
+</div>
 
-    <div class="auth-box">
+<nav class="nav">
 
-      <div class="logo">
-        <span>AURA</span> Growth AI
-      </div>
+<button class="active" data-page="Dashboard">
+<span class="icon">⌂</span>
+Dashboard
+</button>
 
-      <div class="auth-subtitle">
-        AI Marketing Automation System
-      </div>
+<button data-page="Research">
+<span class="icon">⌕</span>
+Research
+</button>
 
-      <h2 id="authTitle">Login</h2>
+<button data-page="Content">
+<span class="icon">▤</span>
+Content
+</button>
 
-      <form id="authForm">
+<button data-page="Funnel">
+<span class="icon">▽</span>
+Funnel
+</button>
 
-        <input
-          id="nameInput"
-          class="input"
-          type="text"
-          placeholder="Full name"
-          style="display:none;"
-        />
+<button data-page="Campaigns">
+<span class="icon">⌁</span>
+Campaigns
+</button>
 
-        <input
-          id="emailInput"
-          class="input"
-          type="email"
-          placeholder="Email address"
-          required
-        />
+<button data-page="Reports">
+<span class="icon">▥</span>
+Reports
+</button>
 
-        <input
-          id="passwordInput"
-          class="input"
-          type="password"
-          placeholder="Password"
-          required
-        />
+<button data-page="Approvals">
+<span class="icon">✓</span>
+Approvals
+</button>
 
-        <button class="primary-btn" type="submit" id="authButton">
-          Login
-        </button>
+<button data-page="Settings">
+<span class="icon">⚙</span>
+Settings
+</button>
 
-      </form>
+</nav>
 
-      <div id="authMessage"></div>
+<div class="bottom">
 
-      <div class="switch-text">
-        <span id="switchLabel">Don't have an account?</span>
+<div class="help">
+<div class="bot">🤖</div>
+<b>AI Assistant</b>
+<p>Your growth partner 24/7</p>
+<button class="aiBtn" id="startCampaign">
+Start New Campaign →
+</button>
+</div>
 
-        <button
-          class="switch-btn"
-          id="switchButton"
-          type="button"
-        >
-          Sign up
-        </button>
-      </div>
+<button class="logout" id="logout">
+Logout
+</button>
 
-    </div>
+</div>
+</aside>
 
-  </section>
 
+<!-- MAIN -->
+<main class="main">
 
-  <!-- ================= DASHBOARD ================= -->
+<header class="topbar">
 
-  <section id="dashboardPage">
+<div class="search">
+<span>⌕</span>
+<input placeholder="Search anything...   Ctrl K">
+</div>
 
-    <aside class="sidebar">
+<div class="top-actions">
 
-      <div class="brand">
-        <span>AURA</span> Growth AI
-      </div>
+<button class="circle">☼</button>
+<button class="circle">◐</button>
+<button class="circle">♧</button>
 
-      <button class="nav-item active">
-        Dashboard
-      </button>
+<div class="profile">
+<div class="avatar" id="avatar">H</div>
 
-      <button class="nav-item">
-        Research
-      </button>
+<div>
+<b id="profileName">Hasan</b>
+<small>Pro Plan</small>
+</div>
 
-      <button class="nav-item">
-        Content
-      </button>
+</div>
+</div>
+</header>
 
-      <button class="nav-item">
-        Funnel
-      </button>
 
-      <button class="nav-item">
-        Campaigns
-      </button>
+<section class="page-head">
 
-      <button class="nav-item">
-        Reports
-      </button>
+<div>
+<h1>Dashboard</h1>
+<p>Track your growth in real-time.</p>
+</div>
 
-      <button class="nav-item">
-        Approvals
-      </button>
+<button class="period">
+▣ &nbsp; Last 30 days &nbsp;⌄
+</button>
 
-      <button class="nav-item">
-        Settings
-      </button>
+</section>
 
-      <button class="nav-item logout" id="logoutButton">
-        Logout
-      </button>
 
-    </aside>
+<!-- STAT CARDS -->
+<section class="stats">
 
+<div class="card stat">
 
-    <main class="main">
+<div class="stat-top">
+<span>Revenue</span>
+<div class="stat-icon">$</div>
+</div>
 
-      <div class="topbar">
+<h2>$1,250</h2>
 
-        <div>
-          <h1>Dashboard</h1>
+<span class="trend">↑ 12%</span>
+<span style="color:#77798f;font-size:11px">
+vs last month
+</span>
 
-          <div class="subtitle">
-            AURA Growth AI Marketing System
-          </div>
+<div class="spark">
+<i style="height:10px"></i>
+<i style="height:15px"></i>
+<i style="height:20px"></i>
+<i style="height:18px"></i>
+<i style="height:25px"></i>
+<i style="height:28px"></i>
+<i style="height:33px"></i>
+<i style="height:37px"></i>
+</div>
 
-          <div class="user-email" id="userEmail">
-            Loading user...
-          </div>
-        </div>
+</div>
 
-        <div class="status">
-          ● AI System Online
-        </div>
 
-      </div>
+<div class="card stat">
 
+<div class="stat-top">
+<span>Clicks</span>
+<div class="stat-icon">↗</div>
+</div>
 
-      <div class="cards">
+<h2>4.8K</h2>
 
-        <div class="card">
-          <div class="card-title">Revenue Target</div>
-          <div class="card-value">$200</div>
-        </div>
+<span class="trend">↑ 10%</span>
+<span style="color:#77798f;font-size:11px">
+vs last month
+</span>
 
-        <div class="card">
-          <div class="card-title">Research Tasks</div>
-          <div class="card-value">24</div>
-        </div>
+<div class="spark">
+<i style="height:12px"></i>
+<i style="height:19px"></i>
+<i style="height:17px"></i>
+<i style="height:24px"></i>
+<i style="height:30px"></i>
+<i style="height:28px"></i>
+<i style="height:35px"></i>
+<i style="height:40px"></i>
+</div>
 
-        <div class="card">
-          <div class="card-title">Content Generated</div>
-          <div class="card-value">18</div>
-        </div>
+</div>
 
-        <div class="card">
-          <div class="card-title">Pending Approvals</div>
-          <div class="card-value">1</div>
-        </div>
 
-      </div>
+<div class="card stat">
 
+<div class="stat-top">
+<span>Conversions</span>
+<div class="stat-icon">●</div>
+</div>
 
-      <div class="content-grid">
+<h2>320</h2>
 
-        <div class="panel">
+<span class="trend">↑ 14%</span>
+<span style="color:#77798f;font-size:11px">
+vs last month
+</span>
 
-          <h2>AI Activity</h2>
+<div class="spark">
+<i style="height:11px"></i>
+<i style="height:14px"></i>
+<i style="height:21px"></i>
+<i style="height:25px"></i>
+<i style="height:23px"></i>
+<i style="height:31px"></i>
+<i style="height:35px"></i>
+<i style="height:42px"></i>
+</div>
 
-          <div class="activity">
-            <strong>Market Research</strong>
-            <span>AURA completed market intelligence research.</span>
-          </div>
+</div>
 
-          <div class="activity">
-            <strong>Audience Intelligence</strong>
-            <span>Audience research completed successfully.</span>
-          </div>
 
-          <div class="activity">
-            <strong>Content Engine</strong>
-            <span>New marketing content generated.</span>
-          </div>
+<div class="card stat">
 
-          <div class="activity">
-            <strong>Optimization</strong>
-            <span>Campaign optimization plan created.</span>
-          </div>
+<div class="stat-top">
+<span>Conv. Rate</span>
+<div class="stat-icon">%</div>
+</div>
 
-        </div>
+<h2>6.7%</h2>
 
+<span class="trend">↑ 2.1%</span>
+<span style="color:#77798f;font-size:11px">
+vs last month
+</span>
 
-        <div class="panel">
+<div class="spark">
+<i style="height:9px"></i>
+<i style="height:15px"></i>
+<i style="height:18px"></i>
+<i style="height:23px"></i>
+<i style="height:27px"></i>
+<i style="height:30px"></i>
+<i style="height:35px"></i>
+<i style="height:39px"></i>
+</div>
 
-          <h2>Pending Approval</h2>
+</div>
 
-          <div class="approval">
-            <strong>Campaign Action</strong>
-            <p>
-              AI has prepared an action that requires your approval.
-            </p>
-          </div>
+</section>
 
-          <div class="approval">
-            <strong>Budget Change</strong>
-            <p>
-              No budget change is currently authorized.
-            </p>
-          </div>
 
-        </div>
+<!-- MAIN CONTENT -->
+<section class="grid-main">
 
-      </div>
 
-    </main>
+<!-- CHART -->
+<div class="card panel">
 
-  </section>
+<div class="panel-title">
 
+<div>
+<h3>Audience Growth</h3>
 
-  <script>
+<div class="legend">
+<span>
+<i class="dot purple"></i>
+Users
+</span>
 
-    /* =========================================
-       SUPABASE CONFIG
-       ========================================= */
+<span>
+<i class="dot orange"></i>
+Conversions
+</span>
+</div>
 
-    const SUPABASE_URL = "https://tplcvnurahubfhrezmwz.supabase.co";
+</div>
 
-    const SUPABASE_ANON_KEY = "sb_publishable_J5-3M-7L9AZLIc36ugzwBA_UwcLAVXl";
+<span>Last 30 days ⌄</span>
 
-    const { createClient } =
-      supabase;
+</div>
 
-    const supabaseClient =
-      createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-      );
 
+<div class="chart-wrap">
 
-    /* =========================================
-       ELEMENTS
-       ========================================= */
+<svg class="chart"
+viewBox="0 0 760 260"
+preserveAspectRatio="none">
 
-    const authPage =
-      document.getElementById("authPage");
+<defs>
 
-    const dashboardPage =
-      document.getElementById("dashboardPage");
+<linearGradient
+id="g1"
+x1="0"
+y1="0"
+x2="0"
+y2="1">
 
-    const authForm =
-      document.getElementById("authForm");
+<stop
+offset="0"
+stop-color="#a100ff"
+stop-opacity=".30"/>
 
-    const authTitle =
-      document.getElementById("authTitle");
+<stop
+offset="1"
+stop-color="#a100ff"
+stop-opacity="0"/>
 
-    const authButton =
-      document.getElementById("authButton");
+</linearGradient>
 
-    const switchButton =
-      document.getElementById("switchButton");
+</defs>
 
-    const switchLabel =
-      document.getElementById("switchLabel");
 
-    const nameInput =
-      document.getElementById("nameInput");
+<line class="gridline"
+x1="45"
+y1="30"
+x2="735"
+y2="30"/>
 
-    const emailInput =
-      document.getElementById("emailInput");
+<line class="gridline"
+x1="45"
+y1="80"
+x2="735"
+y2="80"/>
 
-    const passwordInput =
-      document.getElementById("passwordInput");
+<line class="gridline"
+x1="45"
+y1="130"
+x2="735"
+y2="130"/>
 
-    const authMessage =
-      document.getElementById("authMessage");
+<line class="gridline"
+x1="45"
+y1="180"
+x2="735"
+y2="180"/>
 
-    const userEmail =
-      document.getElementById("userEmail");
+<line class="gridline"
+x1="45"
+y1="230"
+x2="735"
+y2="230"/>
 
-    const logoutButton =
-      document.getElementById("logoutButton");
 
+<text class="axis" x="5" y="34">500</text>
+<text class="axis" x="5" y="84">400</text>
+<text class="axis" x="5" y="134">300</text>
+<text class="axis" x="5" y="184">200</text>
+<text class="axis" x="5" y="234">100</text>
 
-    let signupMode = false;
 
+<path
+d="M45 190
+C110 150 145 180 205 150
+S290 160 350 135
+S420 160 475 115
+S550 130 610 85
+S680 100 735 40
+L735 230 L45 230Z"
+fill="url(#g1)"/>
 
-    /* =========================================
-       MESSAGE
-       ========================================= */
 
-    function showMessage(message, success = false) {
+<path
+class="line1"
+d="M45 190
+C110 150 145 180 205 150
+S290 160 350 135
+S420 160 475 115
+S550 130 610 85
+S680 100 735 40"/>
 
-      authMessage.style.display = "block";
 
-      authMessage.textContent = message;
+<path
+class="line2"
+d="M45 205
+C100 180 155 170 205 145
+S290 150 350 110
+S420 130 475 95
+S550 120 610 75
+S680 80 735 25"/>
 
-      authMessage.style.background =
-        success ? "#102b21" : "#301a20";
 
-      authMessage.style.color =
-        success ? "#40ed9b" : "#ff9d9d";
-    }
+<text class="axis" x="42" y="252">Sep 1</text>
+<text class="axis" x="205" y="252">Sep 7</text>
+<text class="axis" x="370" y="252">Sep 14</text>
+<text class="axis" x="530" y="252">Sep 21</text>
+<text class="axis" x="690" y="252">Sep 28</text>
 
+</svg>
 
-    /* =========================================
-       LOGIN / SIGNUP SWITCH
-       ========================================= */
+</div>
+</div>
 
-    switchButton.addEventListener("click", () => {
 
-      signupMode = !signupMode;
+<!-- CAMPAIGNS -->
+<div class="card panel">
 
-      authMessage.style.display = "none";
+<div class="panel-title">
+<h3>Top Campaigns</h3>
+<span>View all →</span>
+</div>
+
+<div class="campaigns">
 
-      if (signupMode) {
+<div class="campaign">
+<div class="camp-icon">📣</div>
+<div>
+<b>Summer Sale</b>
+<small>Campaign</small>
+</div>
+<strong class="gain">+36%</strong>
+</div>
 
-        authTitle.textContent = "Create Account";
+<div class="campaign">
+<div class="camp-icon">▣</div>
+<div>
+<b>Product Launch</b>
+<small>Campaign</small>
+</div>
+<strong class="gain">+28%</strong>
+</div>
 
-        authButton.textContent = "Sign up";
+<div class="campaign">
+<div class="camp-icon">↻</div>
+<div>
+<b>Retargeting</b>
+<small>Campaign</small>
+</div>
+<strong class="gain">+22%</strong>
+</div>
 
-        nameInput.style.display = "block";
+<div class="campaign">
+<div class="camp-icon">▥</div>
+<div>
+<b>Brand Awareness</b>
+<small>Campaign</small>
+</div>
+<strong class="gain">+18%</strong>
+</div>
 
-        nameInput.required = true;
+</div>
+</div>
 
-        switchLabel.textContent =
-          "Already have an account?";
 
-        switchButton.textContent =
-          "Login";
+<!-- TRAFFIC -->
+<div class="card panel">
 
-      } else {
+<div class="panel-title">
+<h3>Traffic Sources</h3>
+</div>
 
-        authTitle.textContent = "Login";
+<div class="donut-area">
 
-        authButton.textContent = "Login";
+<div class="donut">
 
-        nameInput.style.display = "none";
+<div class="donut-center">
+<div>
+4.8K
+<small>Total</small>
+</div>
+</div>
 
-        nameInput.required = false;
+</div>
 
-        switchLabel.textContent =
-          "Don't have an account?";
 
-        switchButton.textContent =
-          "Sign up";
-      }
+<div class="traffic">
 
-    });
+<div>
+<span>
+<i style="background:#2674ff"></i>
+Facebook
+</span>
+<b>45%</b>
+</div>
 
+<div>
+<span>
+<i style="background:#ff0fa8"></i>
+Google
+</span>
+<b>28%</b>
+</div>
 
-    /* =========================================
-       AUTH FORM
-       ========================================= */
+<div>
+<span>
+<i style="background:#ff8a00"></i>
+YouTube
+</span>
+<b>15%</b>
+</div>
 
-    authForm.addEventListener("submit", async (event) => {
+<div>
+<span>
+<i style="background:#7e32ff"></i>
+Direct
+</span>
+<b>12%</b>
+</div>
 
-      event.preventDefault();
+</div>
+</div>
+</div>
 
-      const email =
-        emailInput.value.trim();
+</section>
 
-      const password =
-        passwordInput.value;
 
-      if (signupMode) {
+<!-- BOTTOM -->
+<section class="bottom-grid">
 
-        const name =
-          nameInput.value.trim();
 
-        const { data, error } =
-          await supabaseClient.auth.signUp({
+<!-- ACTIVITY -->
+<div class="card activity">
 
-            email: email,
+<div class="panel-title">
+<h3>Recent Activity</h3>
+<span>View all →</span>
+</div>
 
-            password: password,
 
-            options: {
-              data: {
-                name: name
-              }
-            }
+<div class="row">
 
-          });
+<div class="row-icon">▤</div>
 
+<div>
+<b>AI generated new content</b>
+<small>Social post created</small>
+</div>
 
-        if (error) {
+<span class="time">10m ago</span>
 
-          showMessage(error.message);
+</div>
 
-          return;
-        }
 
+<div class="row">
 
-        showMessage(
-          "Account created. Please check your email to confirm your account.",
-          true
-        );
+<div class="row-icon">f</div>
 
-      } else {
+<div>
+<b>Facebook ad campaign created</b>
+<small>Campaign prepared</small>
+</div>
 
-        const { data, error } =
-          await supabaseClient.auth.signInWithPassword({
+<span class="time">25m ago</span>
 
-            email: email,
+</div>
 
-            password: password
 
-          });
+<div class="row">
 
+<div class="row-icon">◉</div>
 
-        if (error) {
+<div>
+<b>Budget optimized</b>
+<small>Optimization planned</small>
+</div>
 
-          showMessage(error.message);
+<span class="time">1h ago</span>
 
-          return;
-        }
+</div>
 
 
-        showDashboard(data.user);
+<div class="row">
 
-      }
+<div class="row-icon">♧</div>
 
-    });
+<div>
+<b>New approval request</b>
+<small>Waiting for review</small>
+</div>
 
+<span class="time">2h ago</span>
 
-    /* =========================================
-       SHOW DASHBOARD
-       ========================================= */
+</div>
 
-    function showDashboard(user) {
+</div>
 
-      authPage.style.display = "none";
 
-      dashboardPage.style.display = "block";
+<!-- AI RECOMMENDATIONS -->
+<div class="card recommend">
 
-      userEmail.textContent =
-        user?.email || "";
+<div class="panel-title">
+<h3>AI Recommendations</h3>
+</div>
 
-    }
 
+<div class="reco">
 
-    /* =========================================
-       SHOW LOGIN
-       ========================================= */
+<div class="r-icon">↗</div>
 
-    function showLogin() {
+<div>
+<p>Increase ad budget</p>
+<small>High potential campaign</small>
+</div>
 
-      dashboardPage.style.display = "none";
+<button class="action">Apply</button>
 
-      authPage.style.display = "flex";
+</div>
 
-    }
 
+<div class="reco">
 
-    /* =========================================
-       LOGOUT
-       ========================================= */
+<div class="r-icon">▤</div>
 
-    logoutButton.addEventListener("click", async () => {
+<div>
+<p>Create more content</p>
+<small>Trending topics</small>
+</div>
 
-      await supabaseClient.auth.signOut();
+<button class="action">Create</button>
 
-      showLogin();
+</div>
 
-    });
 
+<div class="reco">
 
-    /* =========================================
-       CHECK CURRENT SESSION
-       ========================================= */
+<div class="r-icon">▽</div>
 
-    async function checkSession() {
+<div>
+<p>Optimize funnel</p>
+<small>Improve conversion rate</small>
+</div>
 
-      const {
-        data: {
-          session
-        }
-      } =
-        await supabaseClient.auth.getSession();
+<button class="action">Optimize</button>
 
+</div>
 
-      if (session?.user) {
 
-        showDashboard(session.user);
+<div class="reco">
 
-      } else {
+<div class="r-icon">♧</div>
 
-        showLogin();
+<div>
+<p>Target new audience</p>
+<small>Expand your reach</small>
+</div>
 
-      }
+<button class="action">Analyze</button>
 
-    }
+</div>
 
+</div>
 
-    /* =========================================
-       AUTH STATE CHANGE
-       ========================================= */
 
-    supabaseClient.auth.onAuthStateChange(
-      (event, session) => {
+<!-- QUICK ACTIONS -->
+<div class="card quick">
 
-        if (session?.user) {
+<div class="panel-title">
+<h3>Quick Actions</h3>
+</div>
 
-          showDashboard(session.user);
 
-        } else {
+<button data-action="New Research">
+<span class="qicon">⌕</span>
+New Research
+<span style="margin-left:auto">›</span>
+</button>
 
-          showLogin();
 
-        }
+<button data-action="Generate Content">
+<span class="qicon">✎</span>
+Generate Content
+<span style="margin-left:auto">›</span>
+</button>
 
-      }
-    );
 
+<button data-action="Launch Campaign">
+<span class="qicon">▶</span>
+Launch Campaign
+<span style="margin-left:auto">›</span>
+</button>
 
-    checkSession();
 
-  </script>
+<button data-action="View Reports">
+<span class="qicon">▥</span>
+View Reports
+<span style="margin-left:auto">›</span>
+</button>
+
+</div>
+
+</section>
+
+</main>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* SUPABASE */
+const SUPABASE_URL =
+"https://tplcvnurahubfhrezmwz.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"sb_publishable_J5-3M-7L9AZLIc36ugzWBA_UwcLAVXI";
+
+const {createClient}=supabase;
+
+const sb=createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
+);
+
+
+/* TOAST */
+function toast(msg){
+
+const t=document.getElementById("toast");
+
+t.textContent=msg;
+
+t.style.display="block";
+
+clearTimeout(window.__toast);
+
+window.__toast=setTimeout(()=>{
+t.style.display="none";
+},2200);
+
+}
+
+
+/* USER */
+async function initUser(){
+
+const {
+data:{user}
+}=await sb.auth.getUser();
+
+if(!user){
+
+window.location.href=
+window.location.origin+"/";
+
+return;
+
+}
+
+const email=user.email || "User";
+
+document.getElementById("profileName")
+.textContent=email.split("@")[0];
+
+document.getElementById("avatar")
+.textContent=email[0].toUpperCase();
+
+}
+
+
+/* AUTH STATE */
+sb.auth.onAuthStateChange(
+(event,session)=>{
+
+if(event==="SIGNED_OUT"){
+
+window.location.href=
+window.location.origin+"/";
+
+}
+
+});
+
+
+/* LOGOUT */
+document.getElementById("logout")
+.onclick=async()=>{
+
+await sb.auth.signOut();
+
+window.location.href=
+window.location.origin+"/";
+
+};
+
+
+/* SIDEBAR */
+document
+.querySelectorAll(".nav button")
+.forEach(btn=>{
+
+btn.onclick=()=>{
+
+document
+.querySelectorAll(".nav button")
+.forEach(b=>
+b.classList.remove("active")
+);
+
+btn.classList.add("active");
+
+const page=btn.dataset.page;
+
+if(page!=="Dashboard"){
+
+toast(
+page+
+" module is ready for the next build stage."
+);
+
+}
+
+};
+
+});
+
+
+/* QUICK ACTIONS */
+document
+.querySelectorAll("[data-action]")
+.forEach(btn=>{
+
+btn.onclick=()=>{
+
+toast(
+btn.dataset.action+
+" opened."
+);
+
+};
+
+});
+
+
+/* AI BUTTON */
+document.getElementById("startCampaign")
+.onclick=()=>{
+
+toast(
+"Campaign workspace opened."
+);
+
+};
+
+
+/* RECOMMENDATIONS */
+document
+.querySelectorAll(".action")
+.forEach(btn=>{
+
+btn.onclick=()=>{
+
+toast(
+btn.textContent+
+" action queued for approval."
+);
+
+};
+
+});
+
+
+/* START */
+initUser();
+
+</script>
 
 </body>
 </html>
