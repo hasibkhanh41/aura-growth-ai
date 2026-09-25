@@ -1,88 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AURA Growth AI</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
+      font-family: Arial, sans-serif;
     }
 
     body {
-      font-family: Arial, sans-serif;
-      background: #0b1020;
-      color: #ffffff;
+      background: #080d1c;
+      color: white;
+      min-height: 100vh;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* AUTH */
+
+    #authPage {
+      min-height: 100vh;
       display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 420px;
+      background: #11182b;
+      border: 1px solid #293653;
+      border-radius: 16px;
+      padding: 35px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+
+    .logo {
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .logo span {
+      color: #7657ff;
+    }
+
+    .auth-subtitle {
+      color: #91a0bd;
+      margin-bottom: 28px;
+    }
+
+    .auth-box h2 {
+      margin-bottom: 20px;
+    }
+
+    .input {
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 14px;
+      background: #0b1122;
+      border: 1px solid #303c58;
+      border-radius: 8px;
+      color: white;
+      outline: none;
+    }
+
+    .input:focus {
+      border-color: #7657ff;
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      background: #7657ff;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .primary-btn:hover {
+      opacity: .9;
+    }
+
+    .switch-text {
+      text-align: center;
+      margin-top: 18px;
+      color: #91a0bd;
+    }
+
+    .switch-btn {
+      background: none;
+      border: none;
+      color: #8d76ff;
+      font-weight: bold;
+    }
+
+    #authMessage {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 7px;
+      display: none;
+      font-size: 14px;
+    }
+
+    /* DASHBOARD */
+
+    #dashboardPage {
+      display: none;
       min-height: 100vh;
     }
 
     .sidebar {
-      width: 240px;
-      background: #11182b;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 230px;
+      background: #0d1427;
+      border-right: 1px solid #26324c;
       padding: 25px 15px;
-      border-right: 1px solid #26304a;
     }
 
-    .logo {
-      font-size: 24px;
+    .brand {
+      font-size: 25px;
       font-weight: bold;
-      margin-bottom: 35px;
-      padding: 0 12px;
+      margin: 0 10px 35px;
     }
 
-    .logo span {
-      color: #7c5cff;
+    .brand span {
+      color: #7657ff;
     }
 
-    .menu {
-      list-style: none;
-    }
-
-    .menu li {
+    .nav-item {
+      display: block;
+      width: 100%;
+      text-align: left;
       padding: 13px 15px;
       margin-bottom: 6px;
+      border: none;
       border-radius: 8px;
-      color: #aeb8d0;
-      cursor: pointer;
+      background: transparent;
+      color: #dce3f5;
+      font-size: 15px;
     }
 
-    .menu li:hover,
-    .menu li.active {
-      background: #202943;
-      color: #ffffff;
+    .nav-item:hover,
+    .nav-item.active {
+      background: #202c49;
+    }
+
+    .logout {
+      position: absolute;
+      bottom: 25px;
+      left: 15px;
+      right: 15px;
+      background: #291b27;
+      color: #ff9d9d;
     }
 
     .main {
-      flex: 1;
-      padding: 30px;
+      margin-left: 230px;
+      padding: 35px;
     }
 
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 35px;
     }
 
     .topbar h1 {
-      font-size: 28px;
+      font-size: 32px;
     }
 
-    .business {
-      color: #9da8c0;
+    .subtitle {
+      color: #91a0bd;
       margin-top: 7px;
     }
 
     .status {
-      background: #152b22;
-      color: #5ee39a;
-      padding: 9px 15px;
+      background: #102b21;
+      color: #40ed9b;
+      padding: 10px 15px;
       border-radius: 20px;
       font-size: 14px;
+    }
+
+    .user-email {
+      color: #91a0bd;
+      font-size: 13px;
+      margin-top: 8px;
     }
 
     .cards {
@@ -94,19 +215,18 @@
 
     .card {
       background: #11182b;
-      border: 1px solid #26304a;
+      border: 1px solid #293653;
       border-radius: 12px;
       padding: 22px;
     }
 
     .card-title {
-      color: #8f9ab5;
-      font-size: 14px;
+      color: #91a0bd;
       margin-bottom: 12px;
     }
 
     .card-value {
-      font-size: 28px;
+      font-size: 30px;
       font-weight: bold;
     }
 
@@ -118,20 +238,18 @@
 
     .panel {
       background: #11182b;
-      border: 1px solid #26304a;
+      border: 1px solid #293653;
       border-radius: 12px;
       padding: 22px;
     }
 
     .panel h2 {
-      font-size: 18px;
       margin-bottom: 20px;
     }
 
     .activity {
-      padding: 15px 0;
-      border-bottom: 1px solid #26304a;
-      color: #b8c1d6;
+      padding: 17px 0;
+      border-bottom: 1px solid #293653;
     }
 
     .activity:last-child {
@@ -139,32 +257,30 @@
     }
 
     .activity strong {
-      color: #ffffff;
+      display: block;
+      margin-bottom: 5px;
     }
 
-    .approval {
-      background: #241d10;
-      border: 1px solid #5d4b25;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-
-    .approval-title {
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .approval-text {
-      color: #b8a77b;
+    .activity span {
+      color: #91a0bd;
       font-size: 14px;
     }
 
-    @media (max-width: 900px) {
-      .sidebar {
-        width: 190px;
-      }
+    .approval {
+      background: #292112;
+      border: 1px solid #70541d;
+      padding: 17px;
+      border-radius: 9px;
+      margin-bottom: 12px;
+    }
 
+    .approval p {
+      color: #c8bda4;
+      font-size: 14px;
+      margin-top: 7px;
+    }
+
+    @media (max-width: 900px) {
       .cards {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -174,13 +290,27 @@
       }
     }
 
-    @media (max-width: 600px) {
-      body {
-        display: block;
+    @media (max-width: 650px) {
+      .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
       }
 
-      .sidebar {
-        width: 100%;
+      .logout {
+        position: static;
+        margin-top: 15px;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        gap: 15px;
+        flex-direction: column;
       }
 
       .cards {
@@ -192,117 +322,525 @@
 
 <body>
 
-  <aside class="sidebar">
+  <!-- ================= AUTH PAGE ================= -->
 
-    <div class="logo">
-      <span>AURA</span> Growth AI
+  <section id="authPage">
+
+    <div class="auth-box">
+
+      <div class="logo">
+        <span>AURA</span> Growth AI
+      </div>
+
+      <div class="auth-subtitle">
+        AI Marketing Automation System
+      </div>
+
+      <h2 id="authTitle">Login</h2>
+
+      <form id="authForm">
+
+        <input
+          id="nameInput"
+          class="input"
+          type="text"
+          placeholder="Full name"
+          style="display:none;"
+        />
+
+        <input
+          id="emailInput"
+          class="input"
+          type="email"
+          placeholder="Email address"
+          required
+        />
+
+        <input
+          id="passwordInput"
+          class="input"
+          type="password"
+          placeholder="Password"
+          required
+        />
+
+        <button class="primary-btn" type="submit" id="authButton">
+          Login
+        </button>
+
+      </form>
+
+      <div id="authMessage"></div>
+
+      <div class="switch-text">
+        <span id="switchLabel">Don't have an account?</span>
+
+        <button
+          class="switch-btn"
+          id="switchButton"
+          type="button"
+        >
+          Sign up
+        </button>
+      </div>
+
     </div>
 
-    <ul class="menu">
-      <li class="active">Dashboard</li>
-      <li>Research</li>
-      <li>Content</li>
-      <li>Funnel</li>
-      <li>Campaigns</li>
-      <li>Reports</li>
-      <li>Approvals</li>
-      <li>Settings</li>
-    </ul>
+  </section>
 
-  </aside>
 
-  <main class="main">
+  <!-- ================= DASHBOARD ================= -->
 
-    <div class="topbar">
-      <div>
-        <h1>Dashboard</h1>
-        <div class="business">AURA Growth AI Marketing System</div>
+  <section id="dashboardPage">
+
+    <aside class="sidebar">
+
+      <div class="brand">
+        <span>AURA</span> Growth AI
       </div>
 
-      <div class="status">
-        ● AI System Online
-      </div>
-    </div>
+      <button class="nav-item active">
+        Dashboard
+      </button>
 
-    <section class="cards">
+      <button class="nav-item">
+        Research
+      </button>
 
-      <div class="card">
-        <div class="card-title">Revenue Target</div>
-        <div class="card-value">$200</div>
-      </div>
+      <button class="nav-item">
+        Content
+      </button>
 
-      <div class="card">
-        <div class="card-title">Research Tasks</div>
-        <div class="card-value">24</div>
-      </div>
+      <button class="nav-item">
+        Funnel
+      </button>
 
-      <div class="card">
-        <div class="card-title">Content Generated</div>
-        <div class="card-value">18</div>
-      </div>
+      <button class="nav-item">
+        Campaigns
+      </button>
 
-      <div class="card">
-        <div class="card-title">Pending Approvals</div>
-        <div class="card-value">1</div>
-      </div>
+      <button class="nav-item">
+        Reports
+      </button>
 
-    </section>
+      <button class="nav-item">
+        Approvals
+      </button>
 
-    <section class="content-grid">
+      <button class="nav-item">
+        Settings
+      </button>
 
-      <div class="panel">
-        <h2>AI Activity</h2>
+      <button class="nav-item logout" id="logoutButton">
+        Logout
+      </button>
 
-        <div class="activity">
-          <strong>Market Research</strong><br>
-          AURA completed market intelligence research.
-        </div>
+    </aside>
 
-        <div class="activity">
-          <strong>Audience Intelligence</strong><br>
-          Audience research completed successfully.
-        </div>
 
-        <div class="activity">
-          <strong>Content Engine</strong><br>
-          New marketing content generated.
-        </div>
+    <main class="main">
 
-        <div class="activity">
-          <strong>Optimization</strong><br>
-          Campaign optimization plan created.
-        </div>
+      <div class="topbar">
 
-      </div>
+        <div>
+          <h1>Dashboard</h1>
 
-      <div class="panel">
-        <h2>Pending Approval</h2>
-
-        <div class="approval">
-          <div class="approval-title">
-            Campaign Action
+          <div class="subtitle">
+            AURA Growth AI Marketing System
           </div>
 
-          <div class="approval-text">
-            AI has prepared an action that requires your approval.
+          <div class="user-email" id="userEmail">
+            Loading user...
           </div>
         </div>
 
-        <div class="approval">
-          <div class="approval-title">
-            Budget Change
-          </div>
-
-          <div class="approval-text">
-            No budget change is currently authorized.
-          </div>
+        <div class="status">
+          ● AI System Online
         </div>
 
       </div>
 
-    </section>
 
-  </main>
+      <div class="cards">
+
+        <div class="card">
+          <div class="card-title">Revenue Target</div>
+          <div class="card-value">$200</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Research Tasks</div>
+          <div class="card-value">24</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Content Generated</div>
+          <div class="card-value">18</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Pending Approvals</div>
+          <div class="card-value">1</div>
+        </div>
+
+      </div>
+
+
+      <div class="content-grid">
+
+        <div class="panel">
+
+          <h2>AI Activity</h2>
+
+          <div class="activity">
+            <strong>Market Research</strong>
+            <span>AURA completed market intelligence research.</span>
+          </div>
+
+          <div class="activity">
+            <strong>Audience Intelligence</strong>
+            <span>Audience research completed successfully.</span>
+          </div>
+
+          <div class="activity">
+            <strong>Content Engine</strong>
+            <span>New marketing content generated.</span>
+          </div>
+
+          <div class="activity">
+            <strong>Optimization</strong>
+            <span>Campaign optimization plan created.</span>
+          </div>
+
+        </div>
+
+
+        <div class="panel">
+
+          <h2>Pending Approval</h2>
+
+          <div class="approval">
+            <strong>Campaign Action</strong>
+            <p>
+              AI has prepared an action that requires your approval.
+            </p>
+          </div>
+
+          <div class="approval">
+            <strong>Budget Change</strong>
+            <p>
+              No budget change is currently authorized.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </section>
+
+
+  <script>
+
+    /* =========================================
+       SUPABASE CONFIG
+       ========================================= */
+
+    const SUPABASE_URL = "https://tplcvnurahubfhrezmwz.supabase.co";
+
+    const SUPABASE_ANON_KEY = "sb_publishable_J5-3M-7L9AZLIc36ugzwBA_UwcLAVXl";
+
+    const { createClient } =
+      supabase;
+
+    const supabaseClient =
+      createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+
+    /* =========================================
+       ELEMENTS
+       ========================================= */
+
+    const authPage =
+      document.getElementById("authPage");
+
+    const dashboardPage =
+      document.getElementById("dashboardPage");
+
+    const authForm =
+      document.getElementById("authForm");
+
+    const authTitle =
+      document.getElementById("authTitle");
+
+    const authButton =
+      document.getElementById("authButton");
+
+    const switchButton =
+      document.getElementById("switchButton");
+
+    const switchLabel =
+      document.getElementById("switchLabel");
+
+    const nameInput =
+      document.getElementById("nameInput");
+
+    const emailInput =
+      document.getElementById("emailInput");
+
+    const passwordInput =
+      document.getElementById("passwordInput");
+
+    const authMessage =
+      document.getElementById("authMessage");
+
+    const userEmail =
+      document.getElementById("userEmail");
+
+    const logoutButton =
+      document.getElementById("logoutButton");
+
+
+    let signupMode = false;
+
+
+    /* =========================================
+       MESSAGE
+       ========================================= */
+
+    function showMessage(message, success = false) {
+
+      authMessage.style.display = "block";
+
+      authMessage.textContent = message;
+
+      authMessage.style.background =
+        success ? "#102b21" : "#301a20";
+
+      authMessage.style.color =
+        success ? "#40ed9b" : "#ff9d9d";
+    }
+
+
+    /* =========================================
+       LOGIN / SIGNUP SWITCH
+       ========================================= */
+
+    switchButton.addEventListener("click", () => {
+
+      signupMode = !signupMode;
+
+      authMessage.style.display = "none";
+
+      if (signupMode) {
+
+        authTitle.textContent = "Create Account";
+
+        authButton.textContent = "Sign up";
+
+        nameInput.style.display = "block";
+
+        nameInput.required = true;
+
+        switchLabel.textContent =
+          "Already have an account?";
+
+        switchButton.textContent =
+          "Login";
+
+      } else {
+
+        authTitle.textContent = "Login";
+
+        authButton.textContent = "Login";
+
+        nameInput.style.display = "none";
+
+        nameInput.required = false;
+
+        switchLabel.textContent =
+          "Don't have an account?";
+
+        switchButton.textContent =
+          "Sign up";
+      }
+
+    });
+
+
+    /* =========================================
+       AUTH FORM
+       ========================================= */
+
+    authForm.addEventListener("submit", async (event) => {
+
+      event.preventDefault();
+
+      const email =
+        emailInput.value.trim();
+
+      const password =
+        passwordInput.value;
+
+      if (signupMode) {
+
+        const name =
+          nameInput.value.trim();
+
+        const { data, error } =
+          await supabaseClient.auth.signUp({
+
+            email: email,
+
+            password: password,
+
+            options: {
+              data: {
+                name: name
+              }
+            }
+
+          });
+
+
+        if (error) {
+
+          showMessage(error.message);
+
+          return;
+        }
+
+
+        showMessage(
+          "Account created. Please check your email to confirm your account.",
+          true
+        );
+
+      } else {
+
+        const { data, error } =
+          await supabaseClient.auth.signInWithPassword({
+
+            email: email,
+
+            password: password
+
+          });
+
+
+        if (error) {
+
+          showMessage(error.message);
+
+          return;
+        }
+
+
+        showDashboard(data.user);
+
+      }
+
+    });
+
+
+    /* =========================================
+       SHOW DASHBOARD
+       ========================================= */
+
+    function showDashboard(user) {
+
+      authPage.style.display = "none";
+
+      dashboardPage.style.display = "block";
+
+      userEmail.textContent =
+        user?.email || "";
+
+    }
+
+
+    /* =========================================
+       SHOW LOGIN
+       ========================================= */
+
+    function showLogin() {
+
+      dashboardPage.style.display = "none";
+
+      authPage.style.display = "flex";
+
+    }
+
+
+    /* =========================================
+       LOGOUT
+       ========================================= */
+
+    logoutButton.addEventListener("click", async () => {
+
+      await supabaseClient.auth.signOut();
+
+      showLogin();
+
+    });
+
+
+    /* =========================================
+       CHECK CURRENT SESSION
+       ========================================= */
+
+    async function checkSession() {
+
+      const {
+        data: {
+          session
+        }
+      } =
+        await supabaseClient.auth.getSession();
+
+
+      if (session?.user) {
+
+        showDashboard(session.user);
+
+      } else {
+
+        showLogin();
+
+      }
+
+    }
+
+
+    /* =========================================
+       AUTH STATE CHANGE
+       ========================================= */
+
+    supabaseClient.auth.onAuthStateChange(
+      (event, session) => {
+
+        if (session?.user) {
+
+          showDashboard(session.user);
+
+        } else {
+
+          showLogin();
+
+        }
+
+      }
+    );
+
+
+    checkSession();
+
+  </script>
 
 </body>
 </html>
