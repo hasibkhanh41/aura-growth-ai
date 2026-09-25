@@ -1674,7 +1674,7 @@ button{
 
               <button
     class="nav-item"
-    onclick="showSection('research',this)"
+   onclick="document.querySelectorAll('main > section').forEach(x=>x.style.display='none');document.getElementById('researchPage').style.display='block';"
 >
                 >
                     <span class="nav-icon">⌕</span>
@@ -1683,7 +1683,7 @@ button{
 
                 <button
                     class="nav-item"
-                    onclick="showSection('research',this)""
+                   onclick="showToast('Content module coming next.')"
                 >
                     <span class="nav-icon">▤</span>
                     <span>Content</span>
