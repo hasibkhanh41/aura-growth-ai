@@ -3759,26 +3759,34 @@ async function startCPAResearch(){
     };
 
 
-    console.log(
-        "AURA Research Payload:",
-        researchPayload
-    );
+  try {
+  showToast("AI Research is running...");
 
+  const response = await fetch(
+    "https://mailmarketing756.app.n8n.cloud/webhook/aura/research-intelligence",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(researchPayload)
+    }
+  );
 
-    /*
-      WF-03 connection will be added next.
+  const result = await response.json();
 
-      The payload is already structured so
-      WF-03 can receive it dynamically.
-    */
+  console.log("WF-03 Research Result:", result);
 
-    setTimeout(()=>{
+  if (!response.ok || result.success === false) {
+    throw new Error(result.error || "Research failed");
+  }
 
-        showToast(
-            "Research request prepared successfully."
-        );
+  showToast("✅ AI Research completed successfully.");
 
-    },800);
+} catch (error) {
+  console.error("Research Error:", error);
+  showToast("❌ AI Research failed: " + error.message);
+}
 
 }
 
