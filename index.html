@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Growth AI</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b1020;
+      color: #ffffff;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: #11182b;
+      padding: 25px 15px;
+      border-right: 1px solid #26304a;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 35px;
+      padding: 0 12px;
+    }
+
+    .logo span {
+      color: #7c5cff;
+    }
+
+    .menu {
+      list-style: none;
+    }
+
+    .menu li {
+      padding: 13px 15px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      color: #aeb8d0;
+      cursor: pointer;
+    }
+
+    .menu li:hover,
+    .menu li.active {
+      background: #202943;
+      color: #ffffff;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .topbar h1 {
+      font-size: 28px;
+    }
+
+    .business {
+      color: #9da8c0;
+      margin-top: 7px;
+    }
+
+    .status {
+      background: #152b22;
+      color: #5ee39a;
+      padding: 9px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: #11182b;
+      border: 1px solid #26304a;
+      border-radius: 12px;
+      padding: 22px;
+    }
+
+    .card-title {
+      color: #8f9ab5;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .card-value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: #11182b;
+      border: 1px solid #26304a;
+      border-radius: 12px;
+      padding: 22px;
+    }
+
+    .panel h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .activity {
+      padding: 15px 0;
+      border-bottom: 1px solid #26304a;
+      color: #b8c1d6;
+    }
+
+    .activity:last-child {
+      border-bottom: none;
+    }
+
+    .activity strong {
+      color: #ffffff;
+    }
+
+    .approval {
+      background: #241d10;
+      border: 1px solid #5d4b25;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .approval-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .approval-text {
+      color: #b8a77b;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 190px;
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <aside class="sidebar">
+
+    <div class="logo">
+      <span>AURA</span> Growth AI
+    </div>
+
+    <ul class="menu">
+      <li class="active">Dashboard</li>
+      <li>Research</li>
+      <li>Content</li>
+      <li>Funnel</li>
+      <li>Campaigns</li>
+      <li>Reports</li>
+      <li>Approvals</li>
+      <li>Settings</li>
+    </ul>
+
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div>
+        <h1>Dashboard</h1>
+        <div class="business">AURA Growth AI Marketing System</div>
+      </div>
+
+      <div class="status">
+        ● AI System Online
+      </div>
+    </div>
+
+    <section class="cards">
+
+      <div class="card">
+        <div class="card-title">Revenue Target</div>
+        <div class="card-value">$200</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Research Tasks</div>
+        <div class="card-value">24</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Content Generated</div>
+        <div class="card-value">18</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Pending Approvals</div>
+        <div class="card-value">1</div>
+      </div>
+
+    </section>
+
+    <section class="content-grid">
+
+      <div class="panel">
+        <h2>AI Activity</h2>
+
+        <div class="activity">
+          <strong>Market Research</strong><br>
+          AURA completed market intelligence research.
+        </div>
+
+        <div class="activity">
+          <strong>Audience Intelligence</strong><br>
+          Audience research completed successfully.
+        </div>
+
+        <div class="activity">
+          <strong>Content Engine</strong><br>
+          New marketing content generated.
+        </div>
+
+        <div class="activity">
+          <strong>Optimization</strong><br>
+          Campaign optimization plan created.
+        </div>
+
+      </div>
+
+      <div class="panel">
+        <h2>Pending Approval</h2>
+
+        <div class="approval">
+          <div class="approval-title">
+            Campaign Action
+          </div>
+
+          <div class="approval-text">
+            AI has prepared an action that requires your approval.
+          </div>
+        </div>
+
+        <div class="approval">
+          <div class="approval-title">
+            Budget Change
+          </div>
+
+          <div class="approval-text">
+            No budget change is currently authorized.
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</body>
+</html>
