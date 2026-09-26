@@ -2991,10 +2991,34 @@ async function startCPAResearch(){
 
 async function getBusinessId(user){
   if(!user) return null;
-  if(user?.user_metadata?.business_id) return user.user_metadata.business_id;
-  if(user?.business_id) return user.business_id;
 
+  // Always verify any cached business_id against the logged-in user's
+  // businesses before trusting it.
   try{
+    if(user?.user_metadata?.business_id){
+      const {data:cached,error:cachedError}=await supabaseClient
+        .from('businesses')
+        .select('id')
+        .eq('id',user.user_metadata.business_id)
+        .eq('user_id',user.id)
+        .maybeSingle();
+
+      if(!cachedError && cached?.id) return cached.id;
+      if(cachedError) console.warn('Cached business lookup failed:',cachedError.message);
+    }
+
+    if(user?.business_id){
+      const {data:cached,error:cachedError}=await supabaseClient
+        .from('businesses')
+        .select('id')
+        .eq('id',user.business_id)
+        .eq('user_id',user.id)
+        .maybeSingle();
+
+      if(!cachedError && cached?.id) return cached.id;
+      if(cachedError) console.warn('Business metadata lookup failed:',cachedError.message);
+    }
+
     const {data,error}=await supabaseClient
       .from('businesses')
       .select('id')
