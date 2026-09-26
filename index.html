@@ -2992,7 +2992,9 @@ button{
 
 
       <div id="researchIntelligenceList" style="padding:0 20px;">
-        <div style="padding:24px 0;color:#747995;font-size:12px;text-align:center;">Loading recent intelligence...</div>
+        <div style="padding:24px 0;color:#747995;font-size:12px;text-align:center;">
+          Research intelligence will appear here after your first AI research run.
+        </div>
 
       </div>
 
@@ -3187,6 +3189,7 @@ async function startCPAResearch(){
     if(runCard) runCard.classList.add('completed');
     if(runIcon) runIcon.textContent='✓';
     document.getElementById('auraResearchRunnerStatus').textContent='Completed successfully';
+    await loadResearchIntelligence();
     await new Promise(r=>setTimeout(r,1000));
   }catch(e){
     if(auraRunCancelled) return;
@@ -4170,6 +4173,7 @@ function showSection(section, element){
   if(page) page.style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
   if(section==='dashboard') loadEasyDashboard();
+  if(section==='research') loadResearchIntelligence();
   if(section==='reports') loadDashboardData();
   if(section==='approvals') loadApprovals();
   if(section==='settings') loadAURASettings();
