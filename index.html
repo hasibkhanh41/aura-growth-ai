@@ -2253,6 +2253,24 @@ button{
   </script>
 </div>
 
+<style>
+#researchPage #researchQuery{
+  background:#0c0f21 !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  caret-color:#ffffff;
+  border-color:#2c3154 !important;
+  color-scheme:dark;
+}
+#researchPage #researchQuery::placeholder{
+  color:#777c9d !important;
+  opacity:1;
+}
+#researchPage #researchQuery:focus{
+  border-color:#8e35ff !important;
+  box-shadow:0 0 0 3px rgba(142,53,255,.10);
+}
+</style>
 <section id="researchPage" class="aura-page" style="display:none;">
 
   <div style="
@@ -3181,7 +3199,7 @@ async function loadResearchIntelligence(fallbackResult=null){
       renderResearchIntelligence([fallbackRow]);
 
       if(list){
-        list.insertAdjacentHTML('afterbegin','<div style="padding:9px 0 14px;color:#7f86a8;font-size:10px;">Research completed and saved. Showing the latest result while workspace data syncs.</div>');
+        list.insertAdjacentHTML('afterbegin','<div style="padding:9px 0 14px;color:#7f86a8;font-size:10px;">Latest research result</div>');
       }
       return;
     }
