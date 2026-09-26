@@ -3151,7 +3151,7 @@ button{
 
 <section id="campaignsPage" class="aura-page" style="display:none;">
 <div class="module-shell">
-<div class="module-head"><div><span class="module-badge">APPROVAL PROTECTED</span><h1>Campaign Engine</h1><p>Prepare campaign plans. Paid publishing and budget changes stay behind human approval.</p></div><span class="module-status">Approval required</span></div>
+<div class="module-head"><div><span class="module-badge">APPROVAL PROTECTED</span><h1>Campaign Engine</h1><p>Prepare campaign plans. Paid publishing and budget changes stay behind human approval.</p></div><span class="module-status" id="campaignApprovalStatus">Approval required</span></div>
 <div class="module-grid">
 <label>Campaign Type<select id="campaignType">
 <option value="paid_ads">Paid Ads</option>
@@ -3351,6 +3351,18 @@ async function callAURAWebhook(name,url,payload,resultId){
   const box=document.getElementById(resultId+'Result'); if(box) box.textContent='Running AURA workflow...';
   showToast('AURA '+name+' workflow is running...');
   try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const raw=await r.text();let data;try{data=JSON.parse(raw)}catch{data={raw}}if(!r.ok||data?.success===false)throw new Error(data?.error||'Workflow request failed');if(box)box.textContent=JSON.stringify(data,null,2);showToast('AURA '+name+' workflow completed.');return data}catch(e){if(box)box.textContent='Error: '+e.message;showToast('❌ '+e.message);return null}
+}
+
+function updateCampaignApprovalStatus(){
+  const type=document.getElementById('campaignType')?.value;
+  const budget=Number(document.getElementById('campaignBudget')?.value||0);
+  const el=document.getElementById('campaignApprovalStatus');
+  if(!el) return;
+  const required=type==='paid_ads'||budget>0;
+  el.textContent=required?'Approval required':'No approval needed';
+  el.style.color=required?'#00e6a0':'#8e93b5';
+  el.style.borderColor=required?'rgba(0,230,160,.2)':'rgba(148,163,184,.18)';
+  el.style.background=required?'rgba(0,230,160,.05)':'rgba(148,163,184,.05)';
 }
 
 async function runAURAModule(kind){
@@ -4148,6 +4160,13 @@ document.addEventListener(
 
 checkSession();
 
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  updateCampaignApprovalStatus();
+  document.getElementById('campaignType')?.addEventListener('change',updateCampaignApprovalStatus);
+  document.getElementById('campaignBudget')?.addEventListener('input',updateCampaignApprovalStatus);
+});
+</script>
 </script>
 
 </body>
