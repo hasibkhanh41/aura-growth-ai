@@ -2990,18 +2990,54 @@ async function startCPAResearch(){
 }
 
 async function getBusinessId(user){
+  if(!user) return null;
   if(user?.user_metadata?.business_id) return user.user_metadata.business_id;
   if(user?.business_id) return user.business_id;
+
   try{
     const {data,error}=await supabaseClient.from('businesses').select('id').eq('user_id',user.id).maybeSingle();
-    if(!error&&data?.id) return data.id;
+    if(!error&&data?.id){
+      await supabaseClient.auth.updateUser({data:{business_id:data.id}});
+      return data.id;
+    }
     if(error) console.warn('Business lookup failed:',error.message);
   }catch(e){console.warn('Business lookup failed:',e)}
+
   try{
     const {data,error}=await supabaseClient.from('users').select('business_id').eq('id',user.id).maybeSingle();
-    if(!error&&data?.business_id) return data.business_id;
+    if(!error&&data?.business_id){
+      await supabaseClient.auth.updateUser({data:{business_id:data.business_id}});
+      return data.business_id;
+    }
   }catch(e){console.warn('Legacy user lookup failed:',e)}
-  return null;
+
+  // If this account has no AURA business yet, create its first workspace
+  // through WF-01 and remember the returned business_id in Auth metadata.
+  try{
+    const email=String(user.email||'').trim().toLowerCase();
+    const name=(email.split('@')[0]||'AURA User').trim();
+    const res=await fetch('https://mailmarketing756.app.n8n.cloud/webhook/aura/user-onboarding',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        user_id:user.id,
+        name,
+        email,
+        business_name:'AURA Workspace',
+        niche:'Affiliate / CPA Marketing',
+        target_market:'USA',
+        daily_revenue_target:200,
+        currency:'USD'
+      })
+    });
+    const result=await res.json().catch(()=>({}));
+    if(!res.ok||!result?.business_id) throw new Error(result?.error||'Workspace onboarding failed');
+    await supabaseClient.auth.updateUser({data:{business_id:result.business_id}});
+    return result.business_id;
+  }catch(e){
+    console.warn('Automatic workspace onboarding failed:',e);
+    return null;
+  }
 }
 
 async function callAURAWebhook(name,url,payload,resultId){
