@@ -3564,7 +3564,11 @@ async function runAURAModule(kind){
   }
 }
 async function loadDashboardData(){
-  const user=await getCurrentAURAUser();if(!user)return;const businessId=await getBusinessId(user);if(!businessId)return;
+  const user=await getCurrentAURAUser();
+  if(!user)return;
+  const businessId=await getBusinessId(user);
+  if(!businessId)return;
+
   try{
     const [r,c,v,l,a]=await Promise.all([
       supabaseClient.from('revenue').select('amount').eq('business_id',businessId),
@@ -3573,10 +3577,68 @@ async function loadDashboardData(){
       supabaseClient.from('leads').select('id',{count:'exact',head:true}).eq('business_id',businessId),
       supabaseClient.from('approvals').select('id',{count:'exact',head:true}).eq('business_id',businessId).eq('status','pending')
     ]);
-    const revenue=(r.data||[]).reduce((n,x)=>n+Number(x.amount||0),0),clicks=c.count||0,conversions=v.count||0,leads=l.count||0,pending=a.count||0,rate=clicks?conversions/clicks*100:0,epc=clicks?revenue/clicks:0;
-    const vals=document.querySelectorAll('#dashboardPage .stat-value');if(vals[0])vals[0].textContent='$'+revenue.toFixed(2);if(vals[1])vals[1].textContent=clicks.toLocaleString();if(vals[2])vals[2].textContent=conversions.toLocaleString();if(vals[3])vals[3].textContent=rate.toFixed(2)+'%';
-    const m={reportRevenue:'$'+revenue.toFixed(2),reportLeads:leads.toLocaleString(),reportConversions:conversions.toLocaleString(),reportClicks:clicks.toLocaleString(),reportEpc:'$'+epc.toFixed(4),reportApprovals:pending.toLocaleString()};Object.entries(m).forEach(([id,val])=>{const e=document.getElementById(id);if(e)e.textContent=val});
-    const out=document.getElementById('reportResult');if(out){const cr=document.getElementById('reportConversionRate'),ep=document.getElementById('reportSummaryEpc'),ap=document.getElementById('reportSummaryApprovals'),note=document.getElementById('reportSummaryNote');if(cr)cr.textContent=rate.toFixed(2)+'%';if(ep)ep.textContent='
+
+    const queryErrors=[r.error,c.error,v.error,l.error,a.error].filter(Boolean);
+    if(queryErrors.length){
+      console.error('Dashboard query error:',queryErrors);
+      throw queryErrors[0];
+    }
+
+    const revenue=(r.data||[]).reduce((n,x)=>n+Number(x.amount||0),0);
+    const clicks=c.count||0;
+    const conversions=v.count||0;
+    const leads=l.count||0;
+    const pending=a.count||0;
+    const rate=clicks?(conversions/clicks)*100:0;
+    const epc=clicks?revenue/clicks:0;
+
+    const vals=document.querySelectorAll('#dashboardPage .stat-value');
+    if(vals[0])vals[0].textContent='$'+revenue.toFixed(2);
+    if(vals[1])vals[1].textContent=clicks.toLocaleString();
+    if(vals[2])vals[2].textContent=conversions.toLocaleString();
+    if(vals[3])vals[3].textContent=rate.toFixed(2)+'%';
+
+    const reportMap={
+      reportRevenue:'$'+revenue.toFixed(2),
+      reportLeads:leads.toLocaleString(),
+      reportConversions:conversions.toLocaleString(),
+      reportClicks:clicks.toLocaleString(),
+      reportEpc:'$'+epc.toFixed(4),
+      reportApprovals:pending.toLocaleString()
+    };
+    Object.entries(reportMap).forEach(([id,val])=>{
+      const el=document.getElementById(id);
+      if(el)el.textContent=val;
+    });
+
+    const cr=document.getElementById('reportConversionRate');
+    const ep=document.getElementById('reportSummaryEpc');
+    const ap=document.getElementById('reportSummaryApprovals');
+    const note=document.getElementById('reportSummaryNote');
+    if(cr)cr.textContent=rate.toFixed(2)+'%';
+    if(ep)ep.textContent='$'+epc.toFixed(4);
+    if(ap)ap.textContent=pending.toLocaleString();
+    if(note){
+      note.textContent=(revenue||clicks||leads||conversions)
+        ? 'Your workspace has recorded performance activity. Review the metrics above to track growth.'
+        : 'No performance activity recorded yet. Metrics will update automatically as your workspace generates data.';
+    }
+
+    const errorBanner=document.getElementById('dashboardError');
+    if(errorBanner)errorBanner.style.display='none';
+
+    await Promise.allSettled([loadApprovals(),loadLatestAIDecisions()]);
+  }catch(e){
+    console.error('Dashboard data could not be loaded:',e);
+    const errorBanner=document.getElementById('dashboardError');
+    if(errorBanner){
+      errorBanner.textContent='Dashboard data could not be loaded. Please refresh and try again.';
+      errorBanner.style.display='block';
+    }
+    const approvalBox=document.getElementById('approvalList');
+    if(approvalBox)approvalBox.textContent='Unable to load approvals.';
+  }
+}
 
 async function loadApprovals(){
   const box=document.getElementById('approvalList');if(!box)return;const user=await getCurrentAURAUser();if(!user){box.textContent='Please login.';return}const businessId=await getBusinessId(user);if(!businessId){box.textContent='Business workspace not found.';return}
