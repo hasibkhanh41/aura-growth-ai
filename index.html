@@ -1664,7 +1664,26 @@ button{
     </div>
     <div class="aura-run-complete">✓ Research completed</div>
   </div>
+</div><div id="auraContentRunner" aria-live="polite">
+  <div class="aura-run-card" id="auraContentRunCard">
+    <div class="aura-run-head">
+      <div class="aura-run-icon" id="auraContentRunIcon">✦</div>
+      <div>
+        <div class="aura-run-title">AURA AI Content Generation</div>
+        <div class="aura-run-sub" id="auraContentRunnerStatus">Preparing your content...</div>
+      </div>
+    </div>
+    <div class="aura-run-bar"><span></span></div>
+    <div class="aura-run-steps">
+      <div class="aura-run-step active" id="auraContentStep1"><span class="dot"></span>Preparing content request</div>
+      <div class="aura-run-step" id="auraContentStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
+      <div class="aura-run-step" id="auraContentStep3"><span class="dot"></span>Generating your content</div>
+    </div>
+    <div class="aura-run-complete">✓ Content generated</div>
+  </div>
 </div>
+
+
 
 <div id="app" class="hidden">
 
@@ -1919,6 +1938,19 @@ button{
   0%{transform:translateX(-120%)}
   100%{transform:translateX(290%)}
 }
+#auraContentRunner{
+  position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;
+  background:rgba(4,6,18,.72);backdrop-filter:blur(10px);
+}
+#auraContentRunner.active{display:flex}
+#auraContentRunner .aura-run-card.completed .aura-run-icon{
+  background:linear-gradient(135deg,#00e6a0,#00b887);
+  box-shadow:0 8px 25px rgba(0,230,160,.22);
+}
+#auraContentRunner .aura-run-card.completed .aura-run-bar span{
+  width:100%;transform:none;animation:none;background:linear-gradient(90deg,#00e6a0,#36f2b5);
+}
+#auraContentRunner .aura-run-card.completed .aura-run-complete{display:block}
 .aura-run-card.completed .aura-run-icon{
   background:linear-gradient(135deg,#00e6a0,#00b887);
   box-shadow:0 8px 25px rgba(0,230,160,.22);
@@ -3265,15 +3297,66 @@ async function callAURAWebhook(name,url,payload,resultId){
 }
 
 async function runAURAModule(kind){
-  const user=await getCurrentAURAUser();if(!user){showToast('Please login first.');return}const businessId=await getBusinessId(user);if(!businessId){showToast('Business workspace not found.');return}
+  const user=await getCurrentAURAUser();
+  if(!user){showToast('Please login first.');return}
+  const businessId=await getBusinessId(user);
+  if(!businessId){showToast('Business workspace not found.');return}
+
   const cfg={
     content:['https://mailmarketing756.app.n8n.cloud/webhook/aura/content-creative',{business_id:businessId,content_type:document.getElementById('contentType').value,platform:document.getElementById('contentPlatform').value,market:document.getElementById('contentMarket').value,niche:document.getElementById('contentNiche').value,query:document.getElementById('contentTopic').value}],
     funnel:['https://mailmarketing756.app.n8n.cloud/webhook/aura/funnel-landing-page',{business_id:businessId,funnel_type:document.getElementById('funnelType').value,market:document.getElementById('funnelMarket').value,niche:document.getElementById('funnelNiche').value,traffic_source:document.getElementById('funnelTraffic').value,goal:document.getElementById('funnelGoal').value}],
     campaign:['https://mailmarketing756.app.n8n.cloud/webhook/aura/marketing-campaign',{business_id:businessId,traffic_source:document.getElementById('campaignTraffic').value,market:document.getElementById('campaignMarket').value,niche:document.getElementById('campaignNiche').value,goal:document.getElementById('campaignGoal').value,query:document.getElementById('campaignBrief').value,approval_required:true}]
   }[kind];
-  if(cfg) await callAURAWebhook(kind,cfg[0],cfg[1],kind);
-}
 
+  if(!cfg)return;
+
+  if(kind!=='content'){
+    await callAURAWebhook(kind,cfg[0],cfg[1],kind);
+    return;
+  }
+
+  const runner=document.getElementById('auraContentRunner');
+  const card=document.getElementById('auraContentRunCard');
+  const icon=document.getElementById('auraContentRunIcon');
+  const status=document.getElementById('auraContentRunnerStatus');
+  const steps=['auraContentStep1','auraContentStep2','auraContentStep3'];
+  const runBtn=document.querySelector('[onclick="runAURAModule(\'content\')"]');
+  const setStep=(n,msg)=>{
+    status.textContent=msg;
+    steps.forEach((id,i)=>{
+      const el=document.getElementById(id);
+      el.classList.toggle('active',i===n);
+      el.classList.toggle('done',i<n);
+    });
+  };
+
+  runner?.classList.add('active');
+  if(runBtn){runBtn.disabled=true;runBtn.style.opacity='.6';runBtn.style.cursor='wait';}
+  setStep(0,'Preparing your content request...');
+
+  try{
+    await new Promise(r=>setTimeout(r,450));
+    setStep(1,'Sending request to AURA AI workflow...');
+    await new Promise(r=>setTimeout(r,350));
+    setStep(2,'AURA AI is generating your content...');
+    const result=await callAURAWebhook('content',cfg[0],cfg[1],'content');
+    if(!result)throw new Error('Content workflow did not complete successfully.');
+    steps.forEach(id=>document.getElementById(id)?.classList.add('done'));
+    card?.classList.add('completed');
+    if(icon)icon.textContent='✓';
+    status.textContent='Completed successfully';
+    await new Promise(r=>setTimeout(r,1000));
+  }catch(e){
+    status.textContent='Content could not be generated.';
+    showToast('❌ '+e.message);
+    await new Promise(r=>setTimeout(r,900));
+  }finally{
+    runner?.classList.remove('active');
+    card?.classList.remove('completed');
+    if(icon)icon.textContent='✦';
+    if(runBtn){runBtn.disabled=false;runBtn.style.opacity='1';runBtn.style.cursor='pointer';}
+  }
+}
 async function loadDashboardData(){
   const user=await getCurrentAURAUser();if(!user)return;const businessId=await getBusinessId(user);if(!businessId)return;
   try{
