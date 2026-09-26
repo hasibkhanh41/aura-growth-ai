@@ -1658,11 +1658,11 @@ button{
     </div>
     <div class="aura-run-bar"><span></span></div>
     <div class="aura-run-steps">
-      <div class="aura-run-step active" id="auraStep1"><span class="dot"></span>Preparing research request</div>
-      <div class="aura-run-step" id="auraStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
-      <div class="aura-run-step" id="auraStep3"><span class="dot"></span>Processing research results</div>
+      <div class="aura-run-step active" id="auraStep1"><span class="dot"></span>Preparing</div>
+      <div class="aura-run-step" id="auraStep2"><span class="dot"></span>Connecting</div>
+      <div class="aura-run-step" id="auraStep3"><span class="dot"></span>Processing</div>
     </div>
-    <button type="button" id="auraResearchCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraResearchRunner')">Cancel Research</button>
+    <button type="button" id="auraResearchCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraResearchRunner')">Cancel</button>
     <div class="aura-run-complete">✓ Research completed</div>
   </div>
 </div><div id="auraContentRunner" aria-live="polite">
@@ -1676,11 +1676,11 @@ button{
     </div>
     <div class="aura-run-bar"><span></span></div>
     <div class="aura-run-steps">
-      <div class="aura-run-step active" id="auraContentStep1"><span class="dot"></span>Preparing content request</div>
-      <div class="aura-run-step" id="auraContentStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
-      <div class="aura-run-step" id="auraContentStep3"><span class="dot"></span>Generating your content</div>
+      <div class="aura-run-step active" id="auraContentStep1"><span class="dot"></span>Preparing</div>
+      <div class="aura-run-step" id="auraContentStep2"><span class="dot"></span>Connecting</div>
+      <div class="aura-run-step" id="auraContentStep3"><span class="dot"></span>Generating</div>
     </div>
-    <button type="button" id="auraContentCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraContentRunner')">Cancel Generation</button>
+    <button type="button" id="auraContentCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraContentRunner')">Cancel</button>
     <div class="aura-run-complete">✓ Content generated</div>
   </div>
 </div>
@@ -1696,11 +1696,11 @@ button{
     </div>
     <div class="aura-run-bar"><span></span></div>
     <div class="aura-run-steps">
-      <div class="aura-run-step active" id="auraCampaignStep1"><span class="dot"></span>Preparing campaign request</div>
+      <div class="aura-run-step active" id="auraCampaignStep1"><span class="dot"></span>Preparing</div>
       <div class="aura-run-step" id="auraCampaignStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
-      <div class="aura-run-step" id="auraCampaignStep3"><span class="dot"></span>Generating your campaign plan</div>
+      <div class="aura-run-step" id="auraCampaignStep3"><span class="dot"></span>Generating</div>
     </div>
-    <button type="button" id="auraCampaignCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraCampaignRunner')">Cancel Generation</button>
+    <button type="button" id="auraCampaignCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraCampaignRunner')">Cancel</button>
     <div class="aura-run-complete">✓ Campaign completed</div>
   </div>
 </div>
@@ -1716,11 +1716,11 @@ button{
     </div>
     <div class="aura-run-bar"><span></span></div>
     <div class="aura-run-steps">
-      <div class="aura-run-step active" id="auraFunnelStep1"><span class="dot"></span>Preparing funnel request</div>
+      <div class="aura-run-step active" id="auraFunnelStep1"><span class="dot"></span>Preparing</div>
       <div class="aura-run-step" id="auraFunnelStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
-      <div class="aura-run-step" id="auraFunnelStep3"><span class="dot"></span>Building your funnel plan</div>
+      <div class="aura-run-step" id="auraFunnelStep3"><span class="dot"></span>Generating</div>
     </div>
-    <button type="button" id="auraFunnelCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraFunnelRunner')">Cancel Generation</button>
+    <button type="button" id="auraFunnelCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraFunnelRunner')">Cancel</button>
     <div class="aura-run-complete">✓ Funnel completed</div>
   </div>
 </div>
@@ -2015,25 +2015,32 @@ button{
 #auraContentRunner .aura-run-card.completed .aura-run-bar span{
   width:100%;transform:none;animation:none;background:linear-gradient(90deg,#00e6a0,#36f2b5);
 }
-#auraContentRunner .aura-run-card.completed .aura-run-cancel{
-  width:100%;
-  margin-top:18px;
-  height:40px;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:10px;
-  background:rgba(15,23,42,.65);
-  color:#aeb6d6;
+.aura-run-cancel{
+  display:block;
+  width:auto;
+  min-width:88px;
+  margin:18px 0 0 auto;
+  padding:0 16px;
+  height:36px;
+  border:1px solid rgba(148,163,184,.22);
+  border-radius:9px;
+  background:rgba(15,23,42,.55);
+  color:#9da6c2;
   font-size:12px;
   font-weight:700;
+  letter-spacing:.01em;
   cursor:pointer;
-  transition:.18s ease;
+  transition:all .18s ease;
 }
 .aura-run-cancel:hover{
-  border-color:rgba(255,255,255,.22);
-  background:rgba(30,36,64,.9);
+  border-color:rgba(255,255,255,.32);
+  background:rgba(30,36,64,.85);
   color:#fff;
 }
-.aura-run-cancel:disabled{opacity:.55;cursor:default}
+.aura-run-cancel:disabled{
+  opacity:.55;
+  cursor:default;
+}
 .aura-run-complete{display:block}
 .aura-run-card.completed .aura-run-icon{
   background:linear-gradient(135deg,#00e6a0,#00b887);
@@ -3449,7 +3456,7 @@ function cancelAURARunner(runnerId){
   setTimeout(()=>{
     if(cancel){
       cancel.disabled=false;
-      cancel.textContent=cancel.id==='auraResearchCancel'?'Cancel Research':'Cancel Generation';
+      cancel.textContent='Cancel';
     }
     if(icon) icon.textContent='✦';
     if(status) status.textContent='Ready for another run';
