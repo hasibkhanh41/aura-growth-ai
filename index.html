@@ -1648,9 +1648,9 @@ button{
      ===================================================== -->
 
 <div id="auraResearchRunner" aria-live="polite">
-  <div class="aura-run-card">
+  <div class="aura-run-card" id="auraResearchRunCard">
     <div class="aura-run-head">
-      <div class="aura-run-icon">✦</div>
+      <div class="aura-run-icon" id="auraResearchRunIcon">✦</div>
       <div>
         <div class="aura-run-title">AURA AI Research</div>
         <div class="aura-run-sub" id="auraResearchRunnerStatus">Preparing your research...</div>
@@ -1662,6 +1662,7 @@ button{
       <div class="aura-run-step" id="auraStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
       <div class="aura-run-step" id="auraStep3"><span class="dot"></span>Processing research results</div>
     </div>
+    <div class="aura-run-complete">✓ Research completed</div>
   </div>
 </div>
 
@@ -1918,6 +1919,30 @@ button{
   0%{transform:translateX(-120%)}
   100%{transform:translateX(290%)}
 }
+.aura-run-card.completed .aura-run-icon{
+  background:linear-gradient(135deg,#00e6a0,#00b887);
+  box-shadow:0 8px 25px rgba(0,230,160,.22);
+}
+.aura-run-card.completed .aura-run-bar span{
+  width:100%;
+  transform:none;
+  animation:none;
+  background:linear-gradient(90deg,#00e6a0,#36f2b5);
+}
+.aura-run-card.completed .aura-run-title{color:#fff}
+.aura-run-complete{
+  display:none;
+  margin-top:18px;
+  padding:10px 12px;
+  border-radius:10px;
+  text-align:center;
+  font-size:12px;
+  font-weight:700;
+  color:#00e6a0;
+  background:rgba(0,230,160,.07);
+  border:1px solid rgba(0,230,160,.15);
+}
+.aura-run-card.completed .aura-run-complete{display:block}
 .aura-run-steps{display:grid;gap:11px}
 .aura-run-step{display:flex;align-items:center;gap:10px;color:#656b8e;font-size:13px}
 .aura-run-step .dot{
@@ -3131,14 +3156,21 @@ async function startCPAResearch(){
     const result=await callAURAWebhook('research','https://mailmarketing756.app.n8n.cloud/webhook/aura/research-intelligence',payload,'research');
     if(!result) throw new Error('Research workflow did not return a successful response.');
     steps.forEach(id=>document.getElementById(id)?.classList.add('done'));
-    document.getElementById('auraResearchRunnerStatus').textContent='Research completed successfully.';
-    await new Promise(r=>setTimeout(r,700));
+    const runCard=document.getElementById('auraResearchRunCard');
+    const runIcon=document.getElementById('auraResearchRunIcon');
+    if(runCard) runCard.classList.add('completed');
+    if(runIcon) runIcon.textContent='✓';
+    document.getElementById('auraResearchRunnerStatus').textContent='Completed successfully';
+    await new Promise(r=>setTimeout(r,1000));
   }catch(e){
     document.getElementById('auraResearchRunnerStatus').textContent='Research could not be completed.';
     showToast('❌ '+e.message);
     await new Promise(r=>setTimeout(r,900));
   }finally{
     runner?.classList.remove('active');
+    document.getElementById('auraResearchRunCard')?.classList.remove('completed');
+    const runIconReset=document.getElementById('auraResearchRunIcon');
+    if(runIconReset) runIconReset.textContent='✦';
     if(runBtn){runBtn.disabled=false;runBtn.style.opacity='1';runBtn.style.cursor='pointer';}
   }
 }
