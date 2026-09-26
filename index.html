@@ -3003,7 +3003,7 @@ button{
             cursor:pointer;
           "
         >
-          View all →
+          <span id="researchViewAllLabel">View all →</span>
         </button>
 
       </div>
@@ -3204,7 +3204,14 @@ async function loadResearchIntelligence(fallbackResult=null){
       return;
     }
 
-    if(list)list.innerHTML='<div style="padding:28px 0;color:#7f86a8;font-size:12px;text-align:center;">Research data is syncing. Please refresh shortly.</div>';
+    if(list){
+      const btn=document.querySelector('[onclick="loadResearchIntelligence()"]');
+      if(btn){
+        const label=document.getElementById('researchViewAllLabel');
+        if(label) label.textContent='Refresh ↻';
+      }
+      showToast('Research data is still syncing. Your current results are unchanged.');
+    }
   }
 }
 
