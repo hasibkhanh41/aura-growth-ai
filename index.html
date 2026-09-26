@@ -3115,11 +3115,30 @@ button{
 <div class="module-shell">
 <div class="module-head"><div><span class="module-badge">APPROVAL PROTECTED</span><h1>Campaign Engine</h1><p>Prepare campaign plans. Paid publishing and budget changes stay behind human approval.</p></div><span class="module-status">Approval required</span></div>
 <div class="module-grid">
-<label>Traffic Source<select id="campaignTraffic"><option>Google Ads</option><option>Meta Ads</option><option>Organic</option><option>YouTube</option><option>Multi-channel</option></select></label>
+<label>Campaign Type<select id="campaignType">
+<option value="paid_ads">Paid Ads</option>
+<option value="organic">Organic</option>
+<option value="email">Email</option>
+<option value="affiliate">Affiliate</option>
+</select></label>
+<label>Platform<select id="campaignPlatform">
+<option value="google_ads">Google Ads</option>
+<option value="facebook">Facebook</option>
+<option value="instagram">Instagram</option>
+<option value="tiktok">TikTok</option>
+<option value="youtube">YouTube</option>
+<option value="email">Email</option>
+</select></label>
 <label>Market<input id="campaignMarket" value="USA"></label>
 <label>Vertical / Niche<input id="campaignNiche" placeholder="finance, software, education..."></label>
-<label>Goal<select id="campaignGoal"><option value="lead_generation">Lead Generation</option><option value="conversion">Conversions</option><option value="revenue">Revenue</option><option value="epc">EPC Improvement</option></select></label>
-<label class="full">Campaign brief<input id="campaignBrief" placeholder="Offer + audience + angle + objective"></label>
+<label>Objective<select id="campaignGoal">
+<option value="lead_generation">Lead Generation</option>
+<option value="conversion">Conversions</option>
+<option value="revenue">Revenue</option>
+<option value="epc">EPC Improvement</option>
+</select></label>
+<label>Budget (USD)<input id="campaignBudget" type="number" min="0" step="1" value="20" placeholder="20"></label>
+<label class="full">Campaign Brief<input id="campaignBrief" placeholder="Offer + target audience + angle + key objective"></label>
 </div>
 <button class="module-button" onclick="runAURAModule('campaign')">Prepare Campaign</button>
 <pre id="campaignResult" class="module-result">No job run yet.</pre>
@@ -3305,7 +3324,7 @@ async function runAURAModule(kind){
   const cfg={
     content:['https://mailmarketing756.app.n8n.cloud/webhook/aura/content-creative',{business_id:businessId,content_type:({social:'social_post',blog:'blog',ad_copy:'ad_copy',video_script:'video_script'}[document.getElementById('contentType').value]||'social_post'),platform:document.getElementById('contentPlatform').value.toLowerCase(),market:document.getElementById('contentMarket').value,audience:document.getElementById('contentNiche').value||'General target audience',topic:document.getElementById('contentTopic').value,tone:'professional'}],
     funnel:['https://mailmarketing756.app.n8n.cloud/webhook/aura/funnel-landing-page',{business_id:businessId,funnel_type:document.getElementById('funnelType').value,market:document.getElementById('funnelMarket').value,niche:document.getElementById('funnelNiche').value,traffic_source:document.getElementById('funnelTraffic').value,goal:document.getElementById('funnelGoal').value}],
-    campaign:['https://mailmarketing756.app.n8n.cloud/webhook/aura/marketing-campaign',{business_id:businessId,campaign_type:(['Google Ads','Facebook Ads','Instagram Ads','TikTok Ads'].includes(document.getElementById('campaignTraffic').value)?'paid_ads':'organic'),platform:document.getElementById('campaignTraffic').value.toLowerCase().replace(/\\s+/g,'_'),objective:document.getElementById('campaignGoal').value+' — '+document.getElementById('campaignBrief').value,budget:0,market:document.getElementById('campaignMarket').value,niche:document.getElementById('campaignNiche').value,approval_required:true}]
+    campaign:['https://mailmarketing756.app.n8n.cloud/webhook/aura/marketing-campaign',{business_id:businessId,campaign_type:document.getElementById('campaignType').value,platform:document.getElementById('campaignPlatform').value,objective:document.getElementById('campaignGoal').value+' — '+document.getElementById('campaignBrief').value,budget:Number(document.getElementById('campaignBudget').value||0),market:document.getElementById('campaignMarket').value,niche:document.getElementById('campaignNiche').value,approval_required:true}]
   }[kind];
 
   if(!cfg)return;
