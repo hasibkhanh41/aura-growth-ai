@@ -3420,7 +3420,6 @@ function cancelAURARunner(runnerId){
   auraRunCancelled=true;
   if(auraActiveController){
     auraActiveController.abort();
-    auraActiveController=null;
   }
 
   const runner=document.getElementById(runnerId);
