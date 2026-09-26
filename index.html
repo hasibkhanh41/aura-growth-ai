@@ -1651,7 +1651,19 @@ button{
   border-color:#8e35ff;
   color:#fff;
 }
-</style></style>
+<style>
+.funnel-result-panel{white-space:normal!important;text-align:left;padding:22px!important;line-height:1.65}
+.funnel-result-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:16px;margin-bottom:18px;border-bottom:1px solid #242846}
+.funnel-result-title{color:#fff;font-size:17px;font-weight:800;line-height:1.35}
+.funnel-result-meta{color:#747995;font-size:10px;margin-top:5px}
+.funnel-result-status{color:#00e6a0;font-size:10px;font-weight:700;padding:5px 9px;border:1px solid rgba(0,230,160,.18);background:rgba(0,230,160,.05);border-radius:8px;white-space:nowrap}
+.funnel-result-section{margin-top:16px}
+.funnel-result-label{display:block;color:#9b9fbd;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}
+.funnel-result-body{color:#e9eaf3;font-size:13px;white-space:pre-wrap;background:#0b0e20;border:1px solid #202440;border-radius:11px;padding:15px}
+.funnel-result-cta{color:#c75cff;font-size:12px;font-weight:700}
+.funnel-copy-button{border:1px solid #303554;background:#11142a;color:#c8cada;border-radius:8px;padding:7px 10px;font-size:10px}
+.funnel-copy-button:hover{border-color:#8e35ff;color:#fff}
+</style></style></style>
 </head>
 
 <body>
@@ -3131,7 +3143,9 @@ button{
 <label class="full">Offer / Goal<input id="funnelGoal" placeholder="Approved offer or conversion goal"></label>
 </div>
 <button class="module-button funnel-build-button" onclick="runAURAModule('funnel')"><span>Build Funnel</span><span class="button-arrow">→</span></button>
-<pre id="funnelResult" class="module-result">No job run yet.</pre>
+<div id="funnelResult" class="module-result funnel-result-panel">
+  <div class="content-empty-state">Your generated landing page section will appear here after you build the funnel.</div>
+</div>
 </div></section>
 
 <section id="campaignsPage" class="aura-page" style="display:none;">
@@ -3565,6 +3579,56 @@ function copyGeneratedContent(){
   navigator.clipboard?.writeText(el.innerText||'').then(()=>showToast('✓ Content copied to clipboard.')).catch(()=>showToast('Unable to copy content.'));
 }
 
+async function renderFunnelResult(data,businessId){
+  const box=document.getElementById('funnelResult');
+  if(!box)return;
+  const esc=v=>escapeHtml(String(v??''));
+
+  try{
+    const {data:rows,error}=await supabaseClient
+      .from('landing_pages')
+      .select('page_type,page_name,headline,body_content,call_to_action,status,created_at')
+      .eq('business_id',businessId)
+      .order('created_at',{ascending:false})
+      .limit(1);
+
+    if(error)throw error;
+    const page=rows?.[0];
+
+    if(!page){
+      box.innerHTML='<div class="content-empty-state">Funnel generated successfully. The landing page content is still syncing.</div>';
+      return;
+    }
+
+    const title=page.headline||page.page_name||'Landing Page';
+    const body=page.body_content||'';
+    const cta=page.call_to_action||'';
+    const type=String(page.page_type||data?.page_type||'landing_page').replace(/_/g,' ');
+
+    box.innerHTML=
+      '<div class="funnel-result-head">'+
+        '<div><div class="funnel-result-title">'+esc(title)+'</div>'+
+        '<div class="funnel-result-meta">'+esc(type)+' · Landing page section</div></div>'+
+        '<div style="display:flex;align-items:center;gap:8px;">'+
+          '<span class="funnel-result-status">Generated</span>'+
+          '<button class="funnel-copy-button" type="button" onclick="copyFunnelContent()">Copy</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="funnel-result-section"><span class="funnel-result-label">Page Content</span>'+
+        '<div id="generatedFunnelBody" class="funnel-result-body">'+esc(body)+'</div></div>'+
+      (cta?'<div class="funnel-result-section"><span class="funnel-result-label">Call to Action</span><div class="funnel-result-cta">'+esc(cta)+'</div></div>':'');
+  }catch(e){
+    console.error('Landing page result could not be loaded:',e);
+    box.innerHTML='<div class="content-empty-state">Funnel generated successfully. The landing page result is syncing.</div>';
+  }
+}
+
+function copyFunnelContent(){
+  const el=document.getElementById('generatedFunnelBody');
+  if(!el)return;
+  navigator.clipboard?.writeText(el.innerText||'').then(()=>showToast('✓ Funnel content copied to clipboard.')).catch(()=>showToast('Unable to copy funnel content.'));
+}
+
 async function callAURAWebhook(name,url,payload,resultId){
   const box=document.getElementById(resultId+'Result');
   if(box) box.textContent='Running AURA workflow...';
@@ -3577,6 +3641,7 @@ async function callAURAWebhook(name,url,payload,resultId){
     try{data=JSON.parse(raw)}catch{data={raw}};
     if(!r.ok||data?.success===false) throw new Error(data?.error||'Workflow request failed');
     if(resultId==='content') renderContentResult(data);
+    else if(resultId==='funnel') await renderFunnelResult(data,payload?.business_id);
     else if(box) box.textContent=JSON.stringify(data,null,2);
     showToast('✓ AURA '+name+' workflow completed successfully.');
     return data;
