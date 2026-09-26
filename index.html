@@ -1570,7 +1570,7 @@ button{
 .module-button{height:44px;padding:0 18px;border:0;border-radius:11px;color:white;font-weight:800;background:linear-gradient(135deg,#a900ff,#702cff);box-shadow:0 10px 30px rgba(126,44,255,.25);cursor:pointer}.module-button.small{height:38px;padding:0 14px;font-size:11px}.module-result{margin-top:18px;min-height:160px;padding:16px;border:1px solid #292d51;border-radius:13px;background:#080b1b;color:#bfc4dd;white-space:pre-wrap;overflow:auto;font-size:11px;line-height:1.6}.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.report-grid>div{padding:18px;border:1px solid #292d51;border-radius:14px;background:#0b0e21}.report-grid span{display:block;color:#858aa8;font-size:10px;margin-bottom:8px}.report-grid strong{font-size:24px}.approval-list{display:grid;gap:10px}.approval-item{padding:16px;border:1px solid #292d51;border-radius:13px;background:#0b0e21;display:flex;justify-content:space-between;gap:15px;align-items:center}.approval-item strong{font-size:12px}.approval-item span{display:block;color:#858aa8;font-size:10px;margin-top:4px}.approval-actions{display:flex;gap:7px}.approval-actions button{border:1px solid #343961;background:#11142a;color:#cfd3e9;border-radius:8px;padding:7px 10px;font-size:10px;cursor:pointer}.approval-actions .approve{border-color:rgba(0,230,160,.3);color:#00e6a0}.approval-actions .reject{border-color:rgba(255,85,119,.3);color:#ff7d94}
 @media(max-width:800px){.module-grid,.report-grid{grid-template-columns:1fr}.module-grid .full{grid-column:auto}.module-head{flex-direction:column}.approval-item{align-items:flex-start;flex-direction:column}}
 
-</style>
+.approval-status{display:block;margin-top:6px;text-transform:capitalize;font-size:12px}.approval-status.approved{color:#00e6a0}.approval-status.rejected{color:#ff7181}.approval-status.pending{color:#a8afcf}.approval-final-status{display:inline-flex;align-items:center;padding:8px 12px;border-radius:9px;font-size:12px;font-weight:700}.approval-final-status.approved{color:#00e6a0;background:rgba(0,230,160,.08);border:1px solid rgba(0,230,160,.18)}.approval-final-status.rejected{color:#ff7181;background:rgba(255,113,129,.08);border:1px solid rgba(255,113,129,.18)}</style>
 </head>
 
 <body>
@@ -3490,19 +3490,26 @@ async function loadDashboardData(){
 
 async function loadApprovals(){
   const box=document.getElementById('approvalList');if(!box)return;const user=await getCurrentAURAUser();if(!user){box.textContent='Please login.';return}const businessId=await getBusinessId(user);if(!businessId){box.textContent='Business workspace not found.';return}
-  const {data,error}=await supabaseClient.from('approvals').select('*').eq('business_id',businessId).eq('status','pending').order('created_at',{ascending:false}).limit(30);if(error){box.textContent=error.message;return}if(!data?.length){box.textContent='No pending approvals.';return}
-  box.innerHTML=data.map(a=>{const title=a.title||a.action||a.type||'AI action';return `<div class="approval-item"><div><strong>${escapeHtml(String(title))}</strong><span>pending · ${a.created_at?new Date(a.created_at).toLocaleString():''}</span></div><div class="approval-actions"><button class="approve" onclick="updateApproval('${a.id}','approved')">Approve</button><button class="reject" onclick="updateApproval('${a.id}','rejected')">Reject</button></div></div>`}).join('');
+  const {data,error}=await supabaseClient.from('approvals').select('*').eq('business_id',businessId).order('created_at',{ascending:false}).limit(30);if(error){box.textContent='Unable to load approvals.';return}if(!data?.length){box.textContent='No approvals found.';return}
+  box.innerHTML=data.map(a=>{
+    const title=a.title||a.action||a.type||'AI action';
+    const status=String(a.status||'pending').toLowerCase();
+    const isPending=status==='pending';
+    const statusLabel=status==='approved'?'Approved':status==='rejected'?'Rejected':'Pending';
+    return `<div class="approval-item">
+      <div><strong>${escapeHtml(String(title))}</strong><span class="approval-status ${status}">${statusLabel} · ${a.created_at?new Date(a.created_at).toLocaleString():''}</span></div>
+      <div class="approval-actions">${isPending?`<button class="approve" onclick="updateApproval('${a.id}','approved')">Approve</button><button class="reject" onclick="updateApproval('${a.id}','rejected')">Reject</button>`: `<span class="approval-final-status ${status}">✓ ${statusLabel}</span>`}</div>
+    </div>`;
+  }).join('');
 }
 async function updateApproval(id,status){
   const {data,error}=await supabaseClient.from('approvals').update({status}).eq('id',id).select('id,status').maybeSingle();
-  if(error||!data){showToast('Unable to update approval. Please try again.');return}
-  if(status==='approved'){
-    showToast('✓ Approval confirmed. The requested AURA action is now approved.');
-  }else if(status==='rejected'){
-    showToast('Approval declined. The requested AURA action will not proceed.');
-  }else{
-    showToast('Approval status updated successfully.');
+  if(error||!data){
+    console.error('Approval update failed:',error);
+    showToast('Approval could not be updated. Please check the approval database policy.');
+    return;
   }
+  showToast(status==='approved'?'✓ Approval confirmed successfully.': 'Approval declined successfully.');
   await loadApprovals()
 }
 function escapeHtml(v){return v.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
