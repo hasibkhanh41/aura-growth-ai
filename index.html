@@ -1662,6 +1662,7 @@ button{
       <div class="aura-run-step" id="auraStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
       <div class="aura-run-step" id="auraStep3"><span class="dot"></span>Processing research results</div>
     </div>
+    <button type="button" id="auraResearchCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraResearchRunner')">Cancel Research</button>
     <div class="aura-run-complete">✓ Research completed</div>
   </div>
 </div><div id="auraContentRunner" aria-live="polite">
@@ -1679,6 +1680,7 @@ button{
       <div class="aura-run-step" id="auraContentStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
       <div class="aura-run-step" id="auraContentStep3"><span class="dot"></span>Generating your content</div>
     </div>
+    <button type="button" id="auraContentCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraContentRunner')">Cancel Generation</button>
     <div class="aura-run-complete">✓ Content generated</div>
   </div>
 </div>
@@ -1698,6 +1700,7 @@ button{
       <div class="aura-run-step" id="auraCampaignStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
       <div class="aura-run-step" id="auraCampaignStep3"><span class="dot"></span>Generating your campaign plan</div>
     </div>
+    <button type="button" id="auraCampaignCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraCampaignRunner')">Cancel Generation</button>
     <div class="aura-run-complete">✓ Campaign completed</div>
   </div>
 </div>
@@ -1717,6 +1720,7 @@ button{
       <div class="aura-run-step" id="auraFunnelStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
       <div class="aura-run-step" id="auraFunnelStep3"><span class="dot"></span>Building your funnel plan</div>
     </div>
+    <button type="button" id="auraFunnelCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraFunnelRunner')">Cancel Generation</button>
     <div class="aura-run-complete">✓ Funnel completed</div>
   </div>
 </div>
@@ -2011,7 +2015,26 @@ button{
 #auraContentRunner .aura-run-card.completed .aura-run-bar span{
   width:100%;transform:none;animation:none;background:linear-gradient(90deg,#00e6a0,#36f2b5);
 }
-#auraContentRunner .aura-run-card.completed .aura-run-complete{display:block}
+#auraContentRunner .aura-run-card.completed .aura-run-cancel{
+  width:100%;
+  margin-top:18px;
+  height:40px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  background:rgba(15,23,42,.65);
+  color:#aeb6d6;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.aura-run-cancel:hover{
+  border-color:rgba(255,255,255,.22);
+  background:rgba(30,36,64,.9);
+  color:#fff;
+}
+.aura-run-cancel:disabled{opacity:.55;cursor:default}
+.aura-run-complete{display:block}
 .aura-run-card.completed .aura-run-icon{
   background:linear-gradient(135deg,#00e6a0,#00b887);
   box-shadow:0 8px 25px rgba(0,230,160,.22);
@@ -3267,6 +3290,7 @@ async function startCPAResearch(){
     });
   };
 
+  prepareAURARunner();
   runner?.classList.add('active');
   if(runBtn){runBtn.disabled=true;runBtn.style.opacity='.6';runBtn.style.cursor='wait';}
   setStep(0,'Preparing your research request...');
@@ -3277,6 +3301,7 @@ async function startCPAResearch(){
     await new Promise(r=>setTimeout(r,350));
     setStep(2,'AURA AI is processing your research...');
     const result=await callAURAWebhook('research','https://mailmarketing756.app.n8n.cloud/webhook/aura/research-intelligence',payload,'research');
+    if(auraRunCancelled) return;
     if(!result) throw new Error('Research workflow did not return a successful response.');
     steps.forEach(id=>document.getElementById(id)?.classList.add('done'));
     const runCard=document.getElementById('auraResearchRunCard');
@@ -3286,6 +3311,7 @@ async function startCPAResearch(){
     document.getElementById('auraResearchRunnerStatus').textContent='Completed successfully';
     await new Promise(r=>setTimeout(r,1000));
   }catch(e){
+    if(auraRunCancelled) return;
     document.getElementById('auraResearchRunnerStatus').textContent='Research could not be completed.';
     showToast('❌ '+e.message);
     await new Promise(r=>setTimeout(r,900));
@@ -3381,12 +3407,62 @@ async function getBusinessId(user){
   }
 }
 
+let auraActiveController=null;
+let auraRunCancelled=false;
+
+function prepareAURARunner(){
+  auraRunCancelled=false;
+  auraActiveController=new AbortController();
+  return auraActiveController;
+}
+
+function cancelAURARunner(runnerId){
+  auraRunCancelled=true;
+  if(auraActiveController){
+    auraActiveController.abort();
+    auraActiveController=null;
+  }
+
+  const runner=document.getElementById(runnerId);
+  runner?.classList.remove('active');
+
+  const card=runner?.querySelector('.aura-run-card');
+  card?.classList.remove('completed');
+
+  const cancel=runner?.querySelector('.aura-run-cancel');
+  if(cancel){
+    cancel.disabled=true;
+    cancel.textContent='Cancelled';
+  }
+
+  const icon=runner?.querySelector('.aura-run-icon');
+  if(icon) icon.textContent='×';
+
+  const status=runner?.querySelector('.aura-run-sub');
+  if(status) status.textContent='Generation cancelled';
+
+  document.querySelectorAll('[onclick^="runAURAModule"],[onclick="startCPAResearch()"]').forEach(btn=>{
+    btn.disabled=false;
+    btn.style.opacity='1';
+    btn.style.cursor='pointer';
+  });
+
+  setTimeout(()=>{
+    if(cancel){
+      cancel.disabled=false;
+      cancel.textContent=cancel.id==='auraResearchCancel'?'Cancel Research':'Cancel Generation';
+    }
+    if(icon) icon.textContent='✦';
+    if(status) status.textContent='Ready for another run';
+  },700);
+}
+
 async function callAURAWebhook(name,url,payload,resultId){
   const box=document.getElementById(resultId+'Result');
   if(box) box.textContent='Running AURA workflow...';
   showToast('AURA '+name+' workflow is running...');
   try{
-    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:auraActiveController?.signal});
     const raw=await r.text();
     if(!raw.trim()) throw new Error('The workflow returned an empty response.');
     let data;
@@ -3396,6 +3472,7 @@ async function callAURAWebhook(name,url,payload,resultId){
     showToast('✓ AURA '+name+' workflow completed successfully.');
     return data;
   }catch(e){
+    if(e?.name==='AbortError' || auraRunCancelled) return null;
     if(box) box.textContent='Error: '+e.message;
     showToast('❌ '+e.message);
     return null;
@@ -3452,13 +3529,15 @@ async function runAURAModule(kind){
       await new Promise(r=>setTimeout(r,350));
       setStep(2,'AURA AI is building your funnel plan...');
       const result=await callAURAWebhook('funnel',cfg[0],cfg[1],'funnel');
-      if(!result) throw new Error('Funnel workflow did not complete successfully.');
+      if(auraRunCancelled) return;
+    if(!result) throw new Error('Funnel workflow did not complete successfully.');
       steps.forEach(id=>document.getElementById(id)?.classList.add('done'));
       card?.classList.add('completed');
       if(icon) icon.textContent='✓';
       if(status) status.textContent='Completed successfully';
       await new Promise(r=>setTimeout(r,1200));
     }catch(e){
+      if(auraRunCancelled) return;
       if(status) status.textContent='Funnel could not be generated.';
       showToast('❌ '+e.message);
       await new Promise(r=>setTimeout(r,900));
@@ -3468,10 +3547,11 @@ async function runAURAModule(kind){
       if(icon) icon.textContent='✦';
       if(runBtn){runBtn.disabled=false;runBtn.style.opacity='1';runBtn.style.cursor='pointer';}
     }
+    if(auraActiveController && !auraRunCancelled) auraActiveController=null;
     return;
   }
 
-  if(kind==='campaign'){
+  if(kind==='campaign'{
     const runner=document.getElementById('auraCampaignRunner');
     const card=document.getElementById('auraCampaignRunCard');
     const icon=document.getElementById('auraCampaignRunIcon');
@@ -3497,6 +3577,7 @@ async function runAURAModule(kind){
       await new Promise(r=>setTimeout(r,350));
       setStep(2,'AURA AI is generating your campaign plan...');
       const result=await callAURAWebhook('campaign',cfg[0],cfg[1],'campaign');
+      if(auraRunCancelled) return;
       if(!result) throw new Error('Campaign workflow did not complete successfully.');
       steps.forEach(id=>document.getElementById(id)?.classList.add('done'));
       card?.classList.add('completed');
@@ -3504,6 +3585,7 @@ async function runAURAModule(kind){
       if(status) status.textContent='Completed successfully';
       await new Promise(r=>setTimeout(r,1200));
     }catch(e){
+      if(auraRunCancelled) return;
       if(status) status.textContent='Campaign could not be generated.';
       showToast('❌ '+e.message);
       await new Promise(r=>setTimeout(r,900));
@@ -3513,10 +3595,11 @@ async function runAURAModule(kind){
       if(icon) icon.textContent='✦';
       if(runBtn){runBtn.disabled=false;runBtn.style.opacity='1';runBtn.style.cursor='pointer';}
     }
+    if(auraActiveController && !auraRunCancelled) auraActiveController=null;
     return;
   }
 
-  if(kind!=='content'){
+  if(kind!=='content'{
     await callAURAWebhook(kind,cfg[0],cfg[1],kind);
     return;
   }
@@ -3536,6 +3619,7 @@ async function runAURAModule(kind){
     });
   };
 
+  prepareAURARunner();
   runner?.classList.add('active');
   if(runBtn){runBtn.disabled=true;runBtn.style.opacity='.6';runBtn.style.cursor='wait';}
   setStep(0,'Preparing your content request...');
@@ -3546,6 +3630,7 @@ async function runAURAModule(kind){
     await new Promise(r=>setTimeout(r,350));
     setStep(2,'AURA AI is generating your content...');
     const result=await callAURAWebhook('content',cfg[0],cfg[1],'content');
+    if(auraRunCancelled) return;
     if(!result)throw new Error('Content workflow did not complete successfully.');
     steps.forEach(id=>document.getElementById(id)?.classList.add('done'));
     card?.classList.add('completed');
@@ -3553,6 +3638,7 @@ async function runAURAModule(kind){
     status.textContent='Completed successfully';
     await new Promise(r=>setTimeout(r,1000));
   }catch(e){
+    if(auraRunCancelled) return;
     status.textContent='Content could not be generated.';
     showToast('❌ '+e.message);
     await new Promise(r=>setTimeout(r,900));
@@ -3562,6 +3648,7 @@ async function runAURAModule(kind){
     if(icon)icon.textContent='✦';
     if(runBtn){runBtn.disabled=false;runBtn.style.opacity='1';runBtn.style.cursor='pointer';}
   }
+  if(auraActiveController && !auraRunCancelled) auraActiveController=null;
 }
 async function loadDashboardData(){
   const user=await getCurrentAURAUser();
