@@ -1570,7 +1570,88 @@ button{
 .module-button{height:44px;padding:0 18px;border:0;border-radius:11px;color:white;font-weight:800;background:linear-gradient(135deg,#a900ff,#702cff);box-shadow:0 10px 30px rgba(126,44,255,.25);cursor:pointer}.module-button.small{height:38px;padding:0 14px;font-size:11px}.module-result{margin-top:18px;min-height:160px;padding:16px;border:1px solid #292d51;border-radius:13px;background:#080b1b;color:#bfc4dd;white-space:pre-wrap;overflow:auto;font-size:11px;line-height:1.6}.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.report-grid>div{padding:18px;border:1px solid #292d51;border-radius:14px;background:#0b0e21}.report-grid span{display:block;color:#858aa8;font-size:10px;margin-bottom:8px}.report-grid strong{font-size:24px}.approval-list{display:grid;gap:10px}.approval-item{padding:16px;border:1px solid #292d51;border-radius:13px;background:#0b0e21;display:flex;justify-content:space-between;gap:15px;align-items:center}.approval-item strong{font-size:12px}.approval-item span{display:block;color:#858aa8;font-size:10px;margin-top:4px}.approval-actions{display:flex;gap:7px}.approval-actions button{border:1px solid #343961;background:#11142a;color:#cfd3e9;border-radius:8px;padding:7px 10px;font-size:10px;cursor:pointer}.approval-actions .approve{border-color:rgba(0,230,160,.3);color:#00e6a0}.approval-actions .reject{border-color:rgba(255,85,119,.3);color:#ff7d94}
 @media(max-width:800px){.module-grid,.report-grid{grid-template-columns:1fr}.module-grid .full{grid-column:auto}.module-head{flex-direction:column}.approval-item{align-items:flex-start;flex-direction:column}}
 
-.approval-status{display:block;margin-top:6px;text-transform:capitalize;font-size:12px}.approval-status.approved{color:#00e6a0}.approval-status.rejected{color:#ff7181}.approval-status.pending{color:#a8afcf}.approval-final-status{display:inline-flex;align-items:center;padding:8px 12px;border-radius:9px;font-size:12px;font-weight:700}.approval-final-status.approved{color:#00e6a0;background:rgba(0,230,160,.08);border:1px solid rgba(0,230,160,.18)}.approval-final-status.rejected{color:#ff7181;background:rgba(255,113,129,.08);border:1px solid rgba(255,113,129,.18)}.funnel-build-button{min-width:150px;height:46px;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:0 18px;border-radius:11px;font-size:14px;font-weight:700;letter-spacing:.1px;box-shadow:0 8px 20px rgba(126,34,255,.18);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}.funnel-build-button .button-icon{font-size:14px}.funnel-build-button .button-arrow{font-size:16px;opacity:.85;transition:transform .18s ease}.funnel-build-button:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(126,34,255,.26);filter:brightness(1.04)}.funnel-build-button:hover .button-arrow{transform:translateX(3px)}.funnel-build-button:active{transform:translateY(0)}.report-summary{margin-top:18px;border:1px solid rgba(148,163,184,.16);border-radius:16px;background:linear-gradient(180deg,rgba(17,24,45,.72),rgba(9,13,29,.72));padding:20px}.report-summary-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.report-summary-head strong{display:block;font-size:15px}.report-summary-head span:not(.report-live-dot){display:block;margin-top:5px;font-size:12px;color:#8f98b8}.report-live-dot{font-size:11px;color:#00e6a0;padding:7px 10px;border:1px solid rgba(0,230,160,.2);border-radius:999px;background:rgba(0,230,160,.06)}.report-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.report-summary-grid>div{padding:15px;border:1px solid rgba(148,163,184,.12);border-radius:12px;background:rgba(255,255,255,.015)}.report-summary-grid span{display:block;font-size:11px;color:#8f98b8;margin-bottom:7px}.report-summary-grid strong{font-size:18px}.report-summary-note{margin-top:14px;padding-top:14px;border-top:1px solid rgba(148,163,184,.1);font-size:12px;line-height:1.6;color:#8f98b8}@media(max-width:700px){.report-summary-grid{grid-template-columns:1fr}}</style>
+.approval-status{display:block;margin-top:6px;text-transform:capitalize;font-size:12px}.approval-status.approved{color:#00e6a0}.approval-status.rejected{color:#ff7181}.approval-status.pending{color:#a8afcf}.approval-final-status{display:inline-flex;align-items:center;padding:8px 12px;border-radius:9px;font-size:12px;font-weight:700}.approval-final-status.approved{color:#00e6a0;background:rgba(0,230,160,.08);border:1px solid rgba(0,230,160,.18)}.approval-final-status.rejected{color:#ff7181;background:rgba(255,113,129,.08);border:1px solid rgba(255,113,129,.18)}.funnel-build-button{min-width:150px;height:46px;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:0 18px;border-radius:11px;font-size:14px;font-weight:700;letter-spacing:.1px;box-shadow:0 8px 20px rgba(126,34,255,.18);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}.funnel-build-button .button-icon{font-size:14px}.funnel-build-button .button-arrow{font-size:16px;opacity:.85;transition:transform .18s ease}.funnel-build-button:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(126,34,255,.26);filter:brightness(1.04)}.funnel-build-button:hover .button-arrow{transform:translateX(3px)}.funnel-build-button:active{transform:translateY(0)}.report-summary{margin-top:18px;border:1px solid rgba(148,163,184,.16);border-radius:16px;background:linear-gradient(180deg,rgba(17,24,45,.72),rgba(9,13,29,.72));padding:20px}.report-summary-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.report-summary-head strong{display:block;font-size:15px}.report-summary-head span:not(.report-live-dot){display:block;margin-top:5px;font-size:12px;color:#8f98b8}.report-live-dot{font-size:11px;color:#00e6a0;padding:7px 10px;border:1px solid rgba(0,230,160,.2);border-radius:999px;background:rgba(0,230,160,.06)}.report-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.report-summary-grid>div{padding:15px;border:1px solid rgba(148,163,184,.12);border-radius:12px;background:rgba(255,255,255,.015)}.report-summary-grid span{display:block;font-size:11px;color:#8f98b8;margin-bottom:7px}.report-summary-grid strong{font-size:18px}.report-summary-note{margin-top:14px;padding-top:14px;border-top:1px solid rgba(148,163,184,.1);font-size:12px;line-height:1.6;color:#8f98b8}@media(max-width:700px){.report-summary-grid{grid-template-columns:1fr}}<style>
+.content-result-panel{
+  white-space:normal !important;
+  text-align:left;
+  padding:22px !important;
+  line-height:1.65;
+}
+.content-empty-state{
+  color:#747995;
+  font-size:12px;
+  text-align:center;
+  padding:18px 0;
+}
+.content-result-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding-bottom:16px;
+  margin-bottom:18px;
+  border-bottom:1px solid #242846;
+}
+.content-result-title{
+  color:#fff;
+  font-size:17px;
+  font-weight:800;
+  line-height:1.35;
+}
+.content-result-meta{
+  color:#747995;
+  font-size:10px;
+  margin-top:5px;
+}
+.content-result-status{
+  color:#00e6a0;
+  font-size:10px;
+  font-weight:700;
+  padding:5px 9px;
+  border:1px solid rgba(0,230,160,.18);
+  background:rgba(0,230,160,.05);
+  border-radius:8px;
+  white-space:nowrap;
+}
+.content-result-section{
+  margin-top:16px;
+}
+.content-result-label{
+  display:block;
+  color:#9b9fbd;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  margin-bottom:7px;
+}
+.content-result-body{
+  color:#e9eaf3;
+  font-size:13px;
+  white-space:pre-wrap;
+  background:#0b0e20;
+  border:1px solid #202440;
+  border-radius:11px;
+  padding:15px;
+}
+.content-result-cta{
+  color:#c75cff;
+  font-size:12px;
+  font-weight:700;
+}
+.content-copy-button{
+  border:1px solid #303554;
+  background:#11142a;
+  color:#c8caDA;
+  border-radius:8px;
+  padding:7px 10px;
+  font-size:10px;
+}
+.content-copy-button:hover{
+  border-color:#8e35ff;
+  color:#fff;
+}
+</style></style>
 </head>
 
 <body>
@@ -3034,7 +3115,9 @@ button{
 <label class="full">Topic / Offer<input id="contentTopic" placeholder="What should AURA create?"></label>
 </div>
 <button class="module-button" onclick="runAURAModule('content')">Generate Content</button>
-<pre id="contentResult" class="module-result">No job run yet.</pre>
+<div id="contentResult" class="module-result content-result-panel">
+  <div class="content-empty-state">Generated content will appear here after you run the Content Engine.</div>
+</div>
 </div></section>
 
 <section id="funnelPage" class="aura-page" style="display:none;">
@@ -3446,6 +3529,42 @@ function cancelAURARunner(runnerId){
   },700);
 }
 
+function renderContentResult(data){
+  const box=document.getElementById('contentResult');
+  if(!box)return;
+
+  const title=String(data?.title||data?.headline||'AI-generated content');
+  const body=String(data?.content||data?.raw||'').replace(/\\n/g,'\n');
+  const cta=String(data?.call_to_action||'');
+  const platform=String(data?.platform||document.getElementById('contentPlatform')?.value||'');
+  const type=String(data?.content_type||'social_post').replace(/_/g,' ');
+  const esc=v=>escapeHtml(String(v??''));
+
+  if(!body){
+    box.innerHTML='<div class="content-empty-state">The workflow completed, but no content body was returned.</div>';
+    return;
+  }
+
+  box.innerHTML=
+    '<div class="content-result-head">'+
+      '<div><div class="content-result-title">'+esc(title)+'</div>'+
+      '<div class="content-result-meta">'+esc(type)+' · '+esc(platform)+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:8px;">'+
+        '<span class="content-result-status">Generated</span>'+
+        '<button class="content-copy-button" type="button" onclick="copyGeneratedContent()">Copy</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="content-result-section"><span class="content-result-label">Generated Content</span>'+
+      '<div id="generatedContentBody" class="content-result-body">'+esc(body)+'</div></div>'+
+    (cta?'<div class="content-result-section"><span class="content-result-label">Call to Action</span><div class="content-result-cta">'+esc(cta)+'</div></div>':'');
+}
+
+function copyGeneratedContent(){
+  const el=document.getElementById('generatedContentBody');
+  if(!el)return;
+  navigator.clipboard?.writeText(el.innerText||'').then(()=>showToast('✓ Content copied to clipboard.')).catch(()=>showToast('Unable to copy content.'));
+}
+
 async function callAURAWebhook(name,url,payload,resultId){
   const box=document.getElementById(resultId+'Result');
   if(box) box.textContent='Running AURA workflow...';
@@ -3457,7 +3576,8 @@ async function callAURAWebhook(name,url,payload,resultId){
     let data;
     try{data=JSON.parse(raw)}catch{data={raw}};
     if(!r.ok||data?.success===false) throw new Error(data?.error||'Workflow request failed');
-    if(box) box.textContent=JSON.stringify(data,null,2);
+    if(resultId==='content') renderContentResult(data);
+    else if(box) box.textContent=JSON.stringify(data,null,2);
     showToast('✓ AURA '+name+' workflow completed successfully.');
     return data;
   }catch(e){
