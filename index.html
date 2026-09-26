@@ -3585,18 +3585,32 @@ async function renderFunnelResult(data,businessId){
   const esc=v=>escapeHtml(String(v??''));
 
   try{
-    const {data:rows,error}=await supabaseClient
-      .from('landing_pages')
-      .select('page_type,page_name,headline,body_content,call_to_action,status,created_at')
-      .eq('business_id',businessId)
-      .order('created_at',{ascending:false})
-      .limit(1);
+    // The workflow response contains the exact section name. Use it to
+    // retrieve the row just written by WF06 without depending on created_at.
+    const section=String(data?.section||'').trim();
+    let rows=null;
+    let error=null;
+
+    for(let attempt=0;attempt<3;attempt++){
+      const q=await supabaseClient
+        .from('landing_pages')
+        .select('page_type,page_name,headline,body_content,call_to_action,status')
+        .eq('business_id',businessId)
+        .eq('page_type',data?.page_type||'landing_page')
+        .eq('page_name',section)
+        .limit(1);
+
+      rows=q.data;
+      error=q.error;
+      if(!error && rows?.length)break;
+      if(attempt<2)await new Promise(resolve=>setTimeout(resolve,700));
+    }
 
     if(error)throw error;
     const page=rows?.[0];
 
     if(!page){
-      box.innerHTML='<div class="content-empty-state">Funnel generated successfully. The landing page content is still syncing.</div>';
+      box.innerHTML='<div class="content-empty-state">Funnel generated successfully, but the saved landing-page section is not available yet. Click Build Funnel again after a moment.</div>';
       return;
     }
 
