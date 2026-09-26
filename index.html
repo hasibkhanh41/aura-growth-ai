@@ -1970,7 +1970,7 @@ button{
   background:rgba(4,6,18,.72);
   backdrop-filter:blur(10px);
 }
-#auraCampaignRunner.active{display:flex}
+#auraCampaignRunner.active{display:flex !important}
 #auraCampaignRunner .aura-run-card.completed .aura-run-icon{
   background:linear-gradient(135deg,#00e6a0,#00b887);
   box-shadow:0 8px 25px rgba(0,230,160,.22);
@@ -4009,6 +4009,10 @@ supabaseClient.auth.onAuthStateChange(
    ========================================================= */
 
 function showSection(section, element){
+  ['auraResearchRunner','auraContentRunner','auraCampaignRunner'].forEach(id=>{
+    const runner=document.getElementById(id);
+    if(runner) runner.classList.remove('active');
+  });
   document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
   if(element) element.classList.add('active');
   const pages={dashboard:'dashboardPage',research:'researchPage',content:'contentPage',funnel:'funnelPage',campaigns:'campaignsPage',reports:'reportsPage',approvals:'approvalsPage',settings:'settingsPage'};
