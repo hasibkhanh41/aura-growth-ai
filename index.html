@@ -1984,7 +1984,6 @@ button{
         await _auraOriginalLoadDashboardData();
       }
     };
-    loadEasyDashboard();
   </script>
 </div>
 
@@ -3578,7 +3577,8 @@ function showSection(section, element){
   const page=document.getElementById(pages[section]);
   if(page) page.style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
-  if(section==='dashboard'||section==='reports') loadDashboardData();
+  if(section==='dashboard') loadEasyDashboard();
+  if(section==='reports') loadDashboardData();
   if(section==='approvals') loadApprovals();
   if(section==='settings') loadAURASettings();
 }
