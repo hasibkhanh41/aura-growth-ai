@@ -3627,7 +3627,7 @@ async function loadDashboardData(){
     const errorBanner=document.getElementById('dashboardError');
     if(errorBanner)errorBanner.style.display='none';
 
-    await Promise.allSettled([loadApprovals(),loadLatestAIDecisions()]);
+    await loadApprovals();
   }catch(e){
     console.error('Dashboard data could not be loaded:',e);
     const errorBanner=document.getElementById('dashboardError');
