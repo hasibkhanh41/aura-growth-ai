@@ -3116,9 +3116,17 @@ async function loadResearchIntelligence(){
   if(!businessId)return;
   const list=document.getElementById('researchIntelligenceList');
   try{
-    const {data,error}=await supabaseClient.from('research').select('*').eq('business_id',businessId).order('created_at',{ascending:false}).limit(50);
+    const {data,error}=await supabaseClient
+      .from('research')
+      .select('id,business_id,research_type,title,summary,market,niche,data,status')
+      .eq('business_id',businessId)
+      .limit(50);
     if(error)throw error;
-    const rows=data||[];
+    const rows=(data||[]).sort((a,b)=>{
+      const ad=a.created_at?new Date(a.created_at).getTime():0;
+      const bd=b.created_at?new Date(b.created_at).getTime():0;
+      return bd-ad;
+    });
     const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v);};
     set('researchTasksMetric',rows.length.toLocaleString());
     const str=r=>JSON.stringify(r||{}).toLowerCase();
@@ -3147,7 +3155,7 @@ async function loadResearchIntelligence(){
     }).join('');
   }catch(e){
     console.error('Research intelligence could not be loaded:',e);
-    if(list)list.innerHTML='<div style="padding:24px 0;color:#ff7181;font-size:12px;text-align:center;">Unable to load research intelligence.</div>';
+    if(list)list.innerHTML='<div style="padding:24px 0;color:#ff7181;font-size:12px;text-align:center;">Research intelligence could not be loaded. Please refresh and try again.</div>';
   }
 }
 
