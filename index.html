@@ -1960,6 +1960,27 @@ button{
   background:rgba(4,6,18,.72);backdrop-filter:blur(10px);
 }
 #auraContentRunner.active{display:flex}
+#auraCampaignRunner{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(4,6,18,.72);
+  backdrop-filter:blur(10px);
+}
+#auraCampaignRunner.active{display:flex}
+#auraCampaignRunner .aura-run-card.completed .aura-run-icon{
+  background:linear-gradient(135deg,#00e6a0,#00b887);
+  box-shadow:0 8px 25px rgba(0,230,160,.22);
+}
+#auraCampaignRunner .aura-run-card.completed .aura-run-bar span{
+  width:100%;
+  transform:none;
+  animation:none;
+  background:linear-gradient(90deg,#00e6a0,#36f2b5);
+}
 #auraContentRunner .aura-run-card.completed .aura-run-icon{
   background:linear-gradient(135deg,#00e6a0,#00b887);
   box-shadow:0 8px 25px rgba(0,230,160,.22);
