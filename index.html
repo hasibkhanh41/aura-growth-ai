@@ -2824,7 +2824,7 @@ button{
           font-weight:800;
           margin-top:7px;
         ">
-          24
+          <span id="researchTasksMetric">0</span>
         </div>
 
         <div style="
@@ -2857,7 +2857,7 @@ button{
           font-weight:800;
           margin-top:7px;
         ">
-          18
+          <span id="offersResearchedMetric">0</span>
         </div>
 
         <div style="
@@ -2890,7 +2890,7 @@ button{
           font-weight:800;
           margin-top:7px;
         ">
-          7
+          <span id="opportunitiesMetric">0</span>
         </div>
 
         <div style="
@@ -2923,7 +2923,7 @@ button{
           font-weight:800;
           margin-top:7px;
         ">
-          11
+          <span id="highIntentMetric">0</span>
         </div>
 
         <div style="
@@ -2976,7 +2976,7 @@ button{
         </div>
 
         <button
-          onclick="showToast('Research history will be connected to Supabase.')"
+          onclick="loadResearchIntelligence()"
           style="
             border:0;
             background:none;
@@ -2991,179 +2991,8 @@ button{
       </div>
 
 
-      <div style="padding:0 20px;">
-
-        <!-- RESULT 1 -->
-
-        <div style="
-          display:flex;
-          align-items:center;
-          gap:13px;
-          padding:16px 0;
-          border-bottom:1px solid #20233e;
-        ">
-
-          <div style="
-            width:38px;
-            height:38px;
-            flex:0 0 38px;
-            border-radius:10px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:rgba(169,0,255,.13);
-            color:#ca62ff;
-          ">
-            ✦
-          </div>
-
-          <div style="
-            flex:1;
-            min-width:0;
-          ">
-
-            <div style="
-              color:#fff;
-              font-size:12px;
-              font-weight:700;
-            ">
-              High-intent CPA offer opportunities
-            </div>
-
-            <div style="
-              color:#737894;
-              font-size:10px;
-              margin-top:4px;
-            ">
-              Offer Research · USA · Affmine
-            </div>
-
-          </div>
-
-          <span style="
-            color:#00e6a0;
-            font-size:10px;
-            font-weight:700;
-          ">
-            Completed
-          </span>
-
-        </div>
-
-
-        <!-- RESULT 2 -->
-
-        <div style="
-          display:flex;
-          align-items:center;
-          gap:13px;
-          padding:16px 0;
-          border-bottom:1px solid #20233e;
-        ">
-
-          <div style="
-            width:38px;
-            height:38px;
-            flex:0 0 38px;
-            border-radius:10px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:rgba(60,110,255,.13);
-            color:#69a0ff;
-          ">
-            ◉
-          </div>
-
-          <div style="
-            flex:1;
-            min-width:0;
-          ">
-
-            <div style="
-              color:#fff;
-              font-size:12px;
-              font-weight:700;
-            ">
-              Buyer intent & audience signals
-            </div>
-
-            <div style="
-              color:#737894;
-              font-size:10px;
-              margin-top:4px;
-            ">
-              Audience Research · USA
-            </div>
-
-          </div>
-
-          <span style="
-            color:#00e6a0;
-            font-size:10px;
-            font-weight:700;
-          ">
-            Completed
-          </span>
-
-        </div>
-
-
-        <!-- RESULT 3 -->
-
-        <div style="
-          display:flex;
-          align-items:center;
-          gap:13px;
-          padding:16px 0;
-        ">
-
-          <div style="
-            width:38px;
-            height:38px;
-            flex:0 0 38px;
-            border-radius:10px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:rgba(255,157,0,.12);
-            color:#ffb63d;
-          ">
-            ↗
-          </div>
-
-          <div style="
-            flex:1;
-            min-width:0;
-          ">
-
-            <div style="
-              color:#fff;
-              font-size:12px;
-              font-weight:700;
-            ">
-              Emerging market opportunity
-            </div>
-
-            <div style="
-              color:#737894;
-              font-size:10px;
-              margin-top:4px;
-            ">
-              Opportunity Research · Global
-            </div>
-
-          </div>
-
-          <span style="
-            color:#ffb020;
-            font-size:10px;
-            font-weight:700;
-          ">
-            Processing
-          </span>
-
-        </div>
+      <div id="researchIntelligenceList" style="padding:0 20px;">
+        <div style="padding:24px 0;color:#747995;font-size:12px;text-align:center;">Loading recent intelligence...</div>
 
       </div>
 
@@ -3277,6 +3106,48 @@ button{
 /* =========================================================
    CPA RESEARCH
    ========================================================= */
+
+async function loadResearchIntelligence(){
+  const user=await getCurrentAURAUser();
+  if(!user)return;
+  const businessId=await getBusinessId(user);
+  if(!businessId)return;
+  const list=document.getElementById('researchIntelligenceList');
+  try{
+    const {data,error}=await supabaseClient.from('research').select('*').eq('business_id',businessId).order('created_at',{ascending:false}).limit(50);
+    if(error)throw error;
+    const rows=data||[];
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v);};
+    set('researchTasksMetric',rows.length.toLocaleString());
+    const str=r=>JSON.stringify(r||{}).toLowerCase();
+    set('offersResearchedMetric',rows.filter(r=>r.offer_id||r.offer_name||r.offer||str(r).includes('"offer"')).length.toLocaleString());
+    set('opportunitiesMetric',rows.filter(r=>str(r).includes('opportunit')||str(r).includes('high potential')).length.toLocaleString());
+    set('highIntentMetric',rows.filter(r=>str(r).includes('high intent')||str(r).includes('high_intent')||str(r).includes('high-intent')).length.toLocaleString());
+    if(!list)return;
+    if(!rows.length){
+      list.innerHTML='<div style="padding:24px 0;color:#747995;font-size:12px;text-align:center;">No research intelligence yet. Run AI Research to create your first result.</div>';
+      return;
+    }
+    list.innerHTML=rows.slice(0,8).map(r=>{
+      const s=str(r);
+      const title=String(r.title||r.name||r.topic||r.query||r.research_type||'Research intelligence');
+      const market=String(r.market||'USA');
+      const network=String(r.network||r.source||'AURA AI');
+      const status=String(r.status||'completed').toLowerCase();
+      const label=status==='completed'||status==='complete'?'Completed':status.charAt(0).toUpperCase()+status.slice(1);
+      const date=r.created_at?new Date(r.created_at).toLocaleString():'';
+      const icon=s.includes('opportunit')?'◆':s.includes('intent')?'◉':'✦';
+      return '<div style="display:flex;align-items:center;gap:13px;padding:16px 0;border-bottom:1px solid #20233e;">'+
+        '<div style="width:38px;height:38px;flex:0 0 38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(169,0,255,.13);color:#ca62ff;">'+icon+'</div>'+
+        '<div style="flex:1;min-width:0;"><div style="color:#fff;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+escapeHtml(title)+'</div>'+
+        '<div style="color:#737894;font-size:10px;margin-top:4px;">'+escapeHtml(String(r.research_type||'Research'))+' · '+escapeHtml(market)+' · '+escapeHtml(network)+(date?' · '+escapeHtml(date):'')+'</div></div>'+
+        '<span style="color:#00e6a0;font-size:10px;font-weight:700;">'+escapeHtml(label)+'</span></div>';
+    }).join('');
+  }catch(e){
+    console.error('Research intelligence could not be loaded:',e);
+    if(list)list.innerHTML='<div style="padding:24px 0;color:#ff7181;font-size:12px;text-align:center;">Unable to load research intelligence.</div>';
+  }
+}
 
 async function startCPAResearch(){
   const user=await getCurrentAURAUser(); if(!user){showToast('Please login first.');return;}
@@ -3723,6 +3594,7 @@ async function loadDashboardData(){
     if(errorBanner)errorBanner.style.display='none';
 
     await loadApprovals();
+    await loadResearchIntelligence();
   }catch(e){
     console.error('Dashboard data could not be loaded:',e);
     const errorBanner=document.getElementById('dashboardError');
