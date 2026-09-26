@@ -3520,6 +3520,7 @@ async function runAURAModule(kind){
         el?.classList.toggle('done',i<n);
       });
     };
+    prepareAURARunner();
     runner?.classList.add('active');
     if(runBtn){runBtn.disabled=true;runBtn.style.opacity='.6';runBtn.style.cursor='wait';}
     setStep(0,'Preparing your funnel request...');
@@ -3551,7 +3552,7 @@ async function runAURAModule(kind){
     return;
   }
 
-  if(kind==='campaign'{
+  if(kind==='campaign'){
     const runner=document.getElementById('auraCampaignRunner');
     const card=document.getElementById('auraCampaignRunCard');
     const icon=document.getElementById('auraCampaignRunIcon');
@@ -3567,6 +3568,7 @@ async function runAURAModule(kind){
       });
     };
 
+    prepareAURARunner();
     runner?.classList.add('active');
     if(runBtn){runBtn.disabled=true;runBtn.style.opacity='.6';runBtn.style.cursor='wait';}
     setStep(0,'Preparing your campaign request...');
@@ -3599,7 +3601,7 @@ async function runAURAModule(kind){
     return;
   }
 
-  if(kind!=='content'{
+  if(kind!=='content'){
     await callAURAWebhook(kind,cfg[0],cfg[1],kind);
     return;
   }
