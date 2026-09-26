@@ -3131,13 +3131,14 @@ let researchIntelligenceRows=[];
 
 function renderResearchIntelligence(rows){
   const list=document.getElementById('researchIntelligenceList');
-  const viewAllBtn=document.querySelector('[onclick="showResearchHistory()"]');
-  if(viewAllBtn) viewAllBtn.style.display=safeRows.length>3?'inline-flex':'none';
 
   if(!list)return;
 
   const safeRows=Array.isArray(rows)?rows:[];
   researchIntelligenceRows=safeRows;
+
+  const viewAllBtn=document.querySelector('[onclick="showResearchHistory()"]');
+  if(viewAllBtn) viewAllBtn.style.display=safeRows.length>3?'inline-flex':'none';
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v);};
   const str=r=>JSON.stringify(r||{}).toLowerCase();
 
