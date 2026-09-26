@@ -1647,6 +1647,24 @@ button{
      APP
      ===================================================== -->
 
+<div id="auraResearchRunner" aria-live="polite">
+  <div class="aura-run-card">
+    <div class="aura-run-head">
+      <div class="aura-run-icon">✦</div>
+      <div>
+        <div class="aura-run-title">AURA AI Research</div>
+        <div class="aura-run-sub" id="auraResearchRunnerStatus">Preparing your research...</div>
+      </div>
+    </div>
+    <div class="aura-run-bar"><span></span></div>
+    <div class="aura-run-steps">
+      <div class="aura-run-step active" id="auraStep1"><span class="dot"></span>Preparing research request</div>
+      <div class="aura-run-step" id="auraStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
+      <div class="aura-run-step" id="auraStep3"><span class="dot"></span>Processing research results</div>
+    </div>
+  </div>
+</div>
+
 <div id="app" class="hidden">
 
     <!-- SIDEBAR -->
@@ -1858,7 +1876,61 @@ button{
     #dashboardPage .easy-btn{border:1px solid rgba(148,163,184,.2);background:rgba(15,23,42,.7);color:#fff;border-radius:10px;padding:11px 15px;cursor:pointer;font-weight:600}
     #dashboardPage .easy-btn.primary{background:var(--primary,#6366f1);border-color:transparent}
     #dashboardPage .easy-btn:hover{transform:translateY(-1px)}
-    #dashboardPage .easy-status{
+    /* =========================================================
+   RESEARCH RUNNER
+   ========================================================= */
+#auraResearchRunner{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(4,6,18,.72);
+  backdrop-filter:blur(10px);
+}
+#auraResearchRunner.active{display:flex}
+.aura-run-card{
+  width:min(440px,calc(100vw - 36px));
+  padding:26px;
+  border:1px solid rgba(169,0,255,.28);
+  border-radius:20px;
+  background:linear-gradient(145deg,#11142b,#0b0e20);
+  box-shadow:0 25px 80px rgba(0,0,0,.5),0 0 45px rgba(125,44,255,.12);
+}
+.aura-run-head{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.aura-run-icon{
+  width:44px;height:44px;border-radius:13px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#a900ff,#702cff);
+  box-shadow:0 8px 25px rgba(140,40,255,.3);
+  font-size:20px;
+}
+.aura-run-title{font-size:17px;font-weight:800}
+.aura-run-sub{font-size:12px;color:#8e93b5;margin-top:3px}
+.aura-run-bar{height:5px;background:#202442;border-radius:99px;overflow:hidden;margin-bottom:20px}
+.aura-run-bar span{
+  display:block;width:38%;height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#a900ff,#e500ff,#7b2cff);
+  animation:auraRunner 1.15s ease-in-out infinite;
+}
+@keyframes auraRunner{
+  0%{transform:translateX(-120%)}
+  100%{transform:translateX(290%)}
+}
+.aura-run-steps{display:grid;gap:11px}
+.aura-run-step{display:flex;align-items:center;gap:10px;color:#656b8e;font-size:13px}
+.aura-run-step .dot{
+  width:9px;height:9px;border-radius:50%;background:#303552;
+  flex:0 0 9px;
+}
+.aura-run-step.active{color:#fff}
+.aura-run-step.active .dot{
+  background:#a900ff;box-shadow:0 0 12px rgba(169,0,255,.65);
+}
+.aura-run-step.done{color:#aeb6d6}
+.aura-run-step.done .dot{background:#00e6a0;box-shadow:0 0 10px rgba(0,230,160,.4)}
+#dashboardPage .easy-status{
       display:inline-flex;
       align-items:center;
       gap:8px;
@@ -3031,8 +3103,44 @@ button{
 async function startCPAResearch(){
   const user=await getCurrentAURAUser(); if(!user){showToast('Please login first.');return;}
   const businessId=await getBusinessId(user); if(!businessId){showToast('Business workspace not found.');return;}
+
   const payload={business_id:businessId,research_type:document.getElementById('researchType')?.value||'market',market:document.getElementById('researchMarket')?.value||'USA',niche:document.getElementById('researchVertical')?.value||'Auto Discover',query:document.getElementById('researchQuery')?.value.trim()||'Find high-intent CPA opportunities',network:document.getElementById('researchNetwork')?.value||'Affmine',traffic_source:document.getElementById('researchTraffic')?.value||'Organic',goal:document.getElementById('researchGoal')?.value||'Lead Generation'};
-  await callAURAWebhook('research','https://mailmarketing756.app.n8n.cloud/webhook/aura/research-intelligence',payload,'research');
+
+  const runner=document.getElementById('auraResearchRunner');
+  const status=document.getElementById('auraResearchRunnerStatus');
+  const steps=['auraStep1','auraStep2','auraStep3'];
+  const runBtn=document.querySelector('[onclick="startCPAResearch()"]');
+  const setStep=(n,msg)=>{
+    status.textContent=msg;
+    steps.forEach((id,i)=>{
+      const el=document.getElementById(id);
+      el.classList.toggle('active',i===n);
+      el.classList.toggle('done',i<n);
+    });
+  };
+
+  runner?.classList.add('active');
+  if(runBtn){runBtn.disabled=true;runBtn.style.opacity='.6';runBtn.style.cursor='wait';}
+  setStep(0,'Preparing your research request...');
+
+  try{
+    await new Promise(r=>setTimeout(r,450));
+    setStep(1,'Sending request to AURA AI workflow...');
+    await new Promise(r=>setTimeout(r,350));
+    setStep(2,'AURA AI is processing your research...');
+    const result=await callAURAWebhook('research','https://mailmarketing756.app.n8n.cloud/webhook/aura/research-intelligence',payload,'research');
+    if(!result) throw new Error('Research workflow did not return a successful response.');
+    steps.forEach(id=>document.getElementById(id)?.classList.add('done'));
+    document.getElementById('auraResearchRunnerStatus').textContent='Research completed successfully.';
+    await new Promise(r=>setTimeout(r,700));
+  }catch(e){
+    document.getElementById('auraResearchRunnerStatus').textContent='Research could not be completed.';
+    showToast('❌ '+e.message);
+    await new Promise(r=>setTimeout(r,900));
+  }finally{
+    runner?.classList.remove('active');
+    if(runBtn){runBtn.disabled=false;runBtn.style.opacity='1';runBtn.style.cursor='pointer';}
+  }
 }
 
 async function getBusinessId(user){
