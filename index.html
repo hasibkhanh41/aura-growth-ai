@@ -299,10 +299,9 @@ async function loadAudienceIntelligence(){
   if(!businessId || !result) return;
   try{
     const {data,error}=await supabaseClient
-      .from('research')
+      .from('audiences')
       .select('*')
       .eq('business_id',businessId)
-      .in('research_type',['audience','lead','qualification'])
       .order('created_at',{ascending:false})
       .limit(20);
     if(error) throw error;
@@ -316,40 +315,58 @@ async function loadAudienceIntelligence(){
 function renderAudienceIntelligence(rows){
   const latest=rows?.[0];
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v);};
-  let parsed=latest?.data ?? latest?.summary ?? {};
-  if(typeof parsed==='string'){
-    try{parsed=JSON.parse(parsed);}catch(_){}
-  }
-  const text=typeof parsed==='string'?parsed:JSON.stringify(parsed||{});
-  const count=(key)=>{
-    const v=parsed?.[key];
-    return Array.isArray(v)?v.length:0;
+  const arr=(value)=>{
+    if(Array.isArray(value)) return value;
+    if(typeof value==='string'){
+      try{
+        const parsed=JSON.parse(value);
+        return Array.isArray(parsed)?parsed:[];
+      }catch(_){}
+    }
+    return [];
   };
-  set('audienceSegmentsMetric',count('audience_segments'));
-  set('intentSignalsMetric',count('buying_intent_signals'));
-  set('qualificationFactorsMetric',count('qualification_factors'));
+
+  const interests=arr(latest?.interests);
+  const behaviors=arr(latest?.behaviors);
+  const painPoints=arr(latest?.pain_points);
+  const needs=arr(latest?.needs);
+  const channels=arr(latest?.preferred_channels);
+
+  set('audienceSegmentsMetric',interests.length);
+  set('intentSignalsMetric',behaviors.length);
+  set('qualificationFactorsMetric',needs.length);
   set('audienceTasksMetric',rows.length);
+
   const result=document.getElementById('audienceResult');
   if(!result) return;
+
   if(!latest){
     result.innerHTML='<div class="content-empty-state">Audience intelligence will appear here after you run the engine.</div>';
     return;
   }
-  const list=(key,title)=>{
-    const values=Array.isArray(parsed?.[key])?parsed[key]:[];
+
+  const list=(title,values,empty='No saved data yet.')=>{
     return '<div class="funnel-result-section"><span class="funnel-result-label">'+title+'</span><div class="funnel-result-body">'+
-      (values.length?values.map(v=>'<div style="margin-bottom:8px;">• '+escapeHtml(String(v))+'</div>').join(''):'No saved signals yet.')+
+      (values.length?values.map(v=>'<div style="margin-bottom:8px;">• '+escapeHtml(String(v))+'</div>').join(''):empty)+
       '</div></div>';
   };
+
+  let sourceText='';
+  if(latest.source_data){
+    try{sourceText=JSON.stringify(latest.source_data,null,2);}catch(_){sourceText=String(latest.source_data);}
+  }
+
   result.innerHTML=
-    '<div class="content-result-header"><div><span class="content-result-label">Latest Intelligence</span><div class="content-result-title">'+
-    escapeHtml(String(latest.title||latest.niche||'Audience Intelligence'))+
-    '</div><div class="content-result-meta">'+escapeHtml(String(latest.market||''))+' · '+escapeHtml(String(latest.research_type||'audience'))+'</div></div></div>'+
-    list('audience_segments','Audience Segments')+
-    list('customer_problems','Customer Problems')+
-    list('buying_intent_signals','Buying Intent Signals')+
-    list('qualification_factors','Qualification Factors')+
-    (text&&text!=='{}'?'<div class="funnel-result-section"><span class="funnel-result-label">Research Evidence</span><div class="funnel-result-body">'+escapeHtml(text)+'</div></div>':'');
+    '<div class="content-result-header"><div><span class="content-result-label">Latest Audience Intelligence</span><div class="content-result-title">'+
+    escapeHtml(String(latest.name||'Audience Intelligence'))+
+    '</div><div class="content-result-meta">'+escapeHtml(String(latest.market||''))+' · '+escapeHtml(String(latest.niche||''))+' · '+escapeHtml(String(latest.audience_type||'audience'))+'</div></div></div>'+
+    '<div class="funnel-result-section"><span class="funnel-result-label">Description</span><div class="funnel-result-body">'+escapeHtml(String(latest.description||'No description saved.'))+'</div></div>'+
+    list('Audience Segments / Interests',interests)+
+    list('Buying Intent / Behaviors',behaviors)+
+    list('Customer Problems',painPoints)+
+    list('Needs / Qualification Factors',needs)+
+    list('Preferred Channels',channels)+
+    (sourceText?'<div class="funnel-result-section"><span class="funnel-result-label">Source Data</span><div class="funnel-result-body">'+escapeHtml(sourceText)+'</div></div>':'');
 }
 
 async function runAudienceIntelligence(){
