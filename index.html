@@ -2994,7 +2994,7 @@ button{
         </div>
 
         <button
-          onclick="loadResearchIntelligence()"
+          onclick="showResearchHistory()"
           style="
             border:0;
             background:none;
@@ -3127,11 +3127,17 @@ button{
    CPA RESEARCH
    ========================================================= */
 
+let researchIntelligenceRows=[];
+
 function renderResearchIntelligence(rows){
   const list=document.getElementById('researchIntelligenceList');
+  const viewAllBtn=document.querySelector('[onclick="showResearchHistory()"]');
+  if(viewAllBtn) viewAllBtn.style.display=safeRows.length>3?'inline-flex':'none';
+
   if(!list)return;
 
   const safeRows=Array.isArray(rows)?rows:[];
+  researchIntelligenceRows=safeRows;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v);};
   const str=r=>JSON.stringify(r||{}).toLowerCase();
 
@@ -3145,7 +3151,7 @@ function renderResearchIntelligence(rows){
     return;
   }
 
-  list.innerHTML=safeRows.slice(0,8).map(r=>{
+  list.innerHTML=safeRows.slice(0,3).map(r=>{
     const s=str(r);
     const title=String(r.title||r.name||r.topic||r.query||r.research_type||'Research intelligence');
     const market=String(r.market||'USA');
@@ -3159,6 +3165,44 @@ function renderResearchIntelligence(rows){
       '<div style="color:#737894;font-size:10px;margin-top:4px;">'+escapeHtml(String(r.research_type||'Research'))+' · '+escapeHtml(market)+(date?' · '+escapeHtml(date):'')+'</div></div>'+
       '<span style="color:#00e6a0;font-size:10px;font-weight:700;">'+escapeHtml(label)+'</span></div>';
   }).join('');
+}
+
+function showResearchHistory(){
+  const rows=researchIntelligenceRows||[];
+  if(rows.length<=3){
+    showToast('More than 3 research results are needed for View all.');
+    return;
+  }
+
+  const modal=document.createElement('div');
+  modal.id='researchHistoryModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(4,5,15,.74);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;';
+
+  const esc=v=>escapeHtml(String(v??''));
+  const listHtml=rows.map((r,i)=>{
+    const title=r.title||r.topic||r.research_type||'Research intelligence';
+    const market=r.market||'USA';
+    const status=String(r.status||'completed');
+    const date=r.created_at?new Date(r.created_at).toLocaleString():'';
+    return '<div style="display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid #242846;">'+
+      '<div style="width:36px;height:36px;flex:0 0 36px;border-radius:10px;background:rgba(169,0,255,.13);color:#c75cff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;">'+(i+1)+'</div>'+
+      '<div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(title)+'</div>'+
+      '<div style="font-size:10px;color:#747995;margin-top:5px;">'+esc(r.research_type||'Research')+' · '+esc(market)+(date?' · '+esc(date):'')+'</div></div>'+
+      '<span style="font-size:10px;font-weight:700;color:#00e6a0;">'+esc(status.charAt(0).toUpperCase()+status.slice(1))+'</span>'+
+    '</div>';
+  }).join('');
+
+  modal.innerHTML='<div style="width:min(760px,100%);max-height:82vh;overflow:hidden;background:#0b0d1d;border:1px solid #2b2f52;border-radius:18px;box-shadow:0 25px 80px rgba(0,0,0,.45);">'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid #242846;">'+
+      '<div><div style="font-size:17px;font-weight:800;color:#fff;">Research History</div><div style="font-size:10px;color:#747995;margin-top:4px;">All saved AI research results</div></div>'+
+      '<button id="closeResearchHistory" style="border:1px solid #303554;background:#11142a;color:#c6c9dc;border-radius:9px;padding:7px 11px;font-size:11px;">Close</button>'+
+    '</div>'+
+    '<div style="padding:0 22px;max-height:65vh;overflow:auto;">'+listHtml+'</div>'+
+  '</div>';
+
+  document.body.appendChild(modal);
+  document.getElementById('closeResearchHistory')?.addEventListener('click',()=>modal.remove());
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
 }
 
 async function loadResearchIntelligence(fallbackResult=null){
@@ -3205,7 +3249,7 @@ async function loadResearchIntelligence(fallbackResult=null){
     }
 
     if(list){
-      const btn=document.querySelector('[onclick="loadResearchIntelligence()"]');
+      const btn=document.querySelector('[onclick="showResearchHistory()"]');
       if(btn){
         const label=document.getElementById('researchViewAllLabel');
         if(label) label.textContent='Refresh ↻';
