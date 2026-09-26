@@ -1570,7 +1570,7 @@ button{
 .module-button{height:44px;padding:0 18px;border:0;border-radius:11px;color:white;font-weight:800;background:linear-gradient(135deg,#a900ff,#702cff);box-shadow:0 10px 30px rgba(126,44,255,.25);cursor:pointer}.module-button.small{height:38px;padding:0 14px;font-size:11px}.module-result{margin-top:18px;min-height:160px;padding:16px;border:1px solid #292d51;border-radius:13px;background:#080b1b;color:#bfc4dd;white-space:pre-wrap;overflow:auto;font-size:11px;line-height:1.6}.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.report-grid>div{padding:18px;border:1px solid #292d51;border-radius:14px;background:#0b0e21}.report-grid span{display:block;color:#858aa8;font-size:10px;margin-bottom:8px}.report-grid strong{font-size:24px}.approval-list{display:grid;gap:10px}.approval-item{padding:16px;border:1px solid #292d51;border-radius:13px;background:#0b0e21;display:flex;justify-content:space-between;gap:15px;align-items:center}.approval-item strong{font-size:12px}.approval-item span{display:block;color:#858aa8;font-size:10px;margin-top:4px}.approval-actions{display:flex;gap:7px}.approval-actions button{border:1px solid #343961;background:#11142a;color:#cfd3e9;border-radius:8px;padding:7px 10px;font-size:10px;cursor:pointer}.approval-actions .approve{border-color:rgba(0,230,160,.3);color:#00e6a0}.approval-actions .reject{border-color:rgba(255,85,119,.3);color:#ff7d94}
 @media(max-width:800px){.module-grid,.report-grid{grid-template-columns:1fr}.module-grid .full{grid-column:auto}.module-head{flex-direction:column}.approval-item{align-items:flex-start;flex-direction:column}}
 
-.approval-status{display:block;margin-top:6px;text-transform:capitalize;font-size:12px}.approval-status.approved{color:#00e6a0}.approval-status.rejected{color:#ff7181}.approval-status.pending{color:#a8afcf}.approval-final-status{display:inline-flex;align-items:center;padding:8px 12px;border-radius:9px;font-size:12px;font-weight:700}.approval-final-status.approved{color:#00e6a0;background:rgba(0,230,160,.08);border:1px solid rgba(0,230,160,.18)}.approval-final-status.rejected{color:#ff7181;background:rgba(255,113,129,.08);border:1px solid rgba(255,113,129,.18)}.funnel-build-button{min-width:150px;height:46px;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:0 18px;border-radius:11px;font-size:14px;font-weight:700;letter-spacing:.1px;box-shadow:0 8px 20px rgba(126,34,255,.18);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}.funnel-build-button .button-icon{font-size:14px}.funnel-build-button .button-arrow{font-size:16px;opacity:.85;transition:transform .18s ease}.funnel-build-button:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(126,34,255,.26);filter:brightness(1.04)}.funnel-build-button:hover .button-arrow{transform:translateX(3px)}.funnel-build-button:active{transform:translateY(0)}</style>
+.approval-status{display:block;margin-top:6px;text-transform:capitalize;font-size:12px}.approval-status.approved{color:#00e6a0}.approval-status.rejected{color:#ff7181}.approval-status.pending{color:#a8afcf}.approval-final-status{display:inline-flex;align-items:center;padding:8px 12px;border-radius:9px;font-size:12px;font-weight:700}.approval-final-status.approved{color:#00e6a0;background:rgba(0,230,160,.08);border:1px solid rgba(0,230,160,.18)}.approval-final-status.rejected{color:#ff7181;background:rgba(255,113,129,.08);border:1px solid rgba(255,113,129,.18)}.funnel-build-button{min-width:150px;height:46px;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:0 18px;border-radius:11px;font-size:14px;font-weight:700;letter-spacing:.1px;box-shadow:0 8px 20px rgba(126,34,255,.18);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}.funnel-build-button .button-icon{font-size:14px}.funnel-build-button .button-arrow{font-size:16px;opacity:.85;transition:transform .18s ease}.funnel-build-button:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(126,34,255,.26);filter:brightness(1.04)}.funnel-build-button:hover .button-arrow{transform:translateX(3px)}.funnel-build-button:active{transform:translateY(0)}.report-summary{margin-top:18px;border:1px solid rgba(148,163,184,.16);border-radius:16px;background:linear-gradient(180deg,rgba(17,24,45,.72),rgba(9,13,29,.72));padding:20px}.report-summary-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.report-summary-head strong{display:block;font-size:15px}.report-summary-head span:not(.report-live-dot){display:block;margin-top:5px;font-size:12px;color:#8f98b8}.report-live-dot{font-size:11px;color:#00e6a0;padding:7px 10px;border:1px solid rgba(0,230,160,.2);border-radius:999px;background:rgba(0,230,160,.06)}.report-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.report-summary-grid>div{padding:15px;border:1px solid rgba(148,163,184,.12);border-radius:12px;background:rgba(255,255,255,.015)}.report-summary-grid span{display:block;font-size:11px;color:#8f98b8;margin-bottom:7px}.report-summary-grid strong{font-size:18px}.report-summary-note{margin-top:14px;padding-top:14px;border-top:1px solid rgba(148,163,184,.1);font-size:12px;line-height:1.6;color:#8f98b8}@media(max-width:700px){.report-summary-grid{grid-template-columns:1fr}}</style>
 </head>
 
 <body>
@@ -3209,7 +3209,18 @@ button{
 <div class="module-shell">
 <div class="module-head"><div><span class="module-badge">LIVE SUPABASE DATA</span><h1>Reports & Revenue Intelligence</h1><p>Current workspace totals from your AURA data tables.</p></div><button class="module-button small" onclick="loadDashboardData()">Refresh</button></div>
 <div class="report-grid"><div><span>Revenue</span><strong id="reportRevenue">$0.00</strong></div><div><span>Leads</span><strong id="reportLeads">0</strong></div><div><span>Conversions</span><strong id="reportConversions">0</strong></div><div><span>Clicks</span><strong id="reportClicks">0</strong></div><div><span>EPC</span><strong id="reportEpc">$0.0000</strong></div><div><span>Pending Approvals</span><strong id="reportApprovals">0</strong></div></div>
-<pre id="reportResult" class="module-result">Refresh to load live metrics.</pre>
+<div id="reportResult" class="report-summary">
+  <div class="report-summary-head">
+    <div><strong>Performance Summary</strong><span>Live workspace performance overview</span></div>
+    <span class="report-live-dot">● Live</span>
+  </div>
+  <div class="report-summary-grid">
+    <div><span>Conversion Rate</span><strong id="reportConversionRate">0.00%</strong></div>
+    <div><span>Revenue per Click</span><strong id="reportSummaryEpc">$0.0000</strong></div>
+    <div><span>Approval Queue</span><strong id="reportSummaryApprovals">0</strong></div>
+  </div>
+  <div class="report-summary-note" id="reportSummaryNote">No performance activity recorded yet. Metrics will update automatically as your workspace generates data.</div>
+</div>
 </div></section>
 
 <section id="approvalsPage" class="aura-page" style="display:none;">
@@ -3565,7 +3576,711 @@ async function loadDashboardData(){
     const revenue=(r.data||[]).reduce((n,x)=>n+Number(x.amount||0),0),clicks=c.count||0,conversions=v.count||0,leads=l.count||0,pending=a.count||0,rate=clicks?conversions/clicks*100:0,epc=clicks?revenue/clicks:0;
     const vals=document.querySelectorAll('#dashboardPage .stat-value');if(vals[0])vals[0].textContent='$'+revenue.toFixed(2);if(vals[1])vals[1].textContent=clicks.toLocaleString();if(vals[2])vals[2].textContent=conversions.toLocaleString();if(vals[3])vals[3].textContent=rate.toFixed(2)+'%';
     const m={reportRevenue:'$'+revenue.toFixed(2),reportLeads:leads.toLocaleString(),reportConversions:conversions.toLocaleString(),reportClicks:clicks.toLocaleString(),reportEpc:'$'+epc.toFixed(4),reportApprovals:pending.toLocaleString()};Object.entries(m).forEach(([id,val])=>{const e=document.getElementById(id);if(e)e.textContent=val});
-    const out=document.getElementById('reportResult');if(out)out.textContent=JSON.stringify({business_id:businessId,revenue,clicks,leads,conversions,conversion_rate_percent:Number(rate.toFixed(2)),epc:Number(epc.toFixed(4)),pending_approvals:pending},null,2);
+    const out=document.getElementById('reportResult');if(out){const cr=document.getElementById('reportConversionRate'),ep=document.getElementById('reportSummaryEpc'),ap=document.getElementById('reportSummaryApprovals'),note=document.getElementById('reportSummaryNote');if(cr)cr.textContent=rate.toFixed(2)+'%';if(ep)ep.textContent='
+  }catch(e){console.error(e);showToast('Dashboard data could not be loaded.')}
+}
+
+async function loadApprovals(){
+  const box=document.getElementById('approvalList');if(!box)return;const user=await getCurrentAURAUser();if(!user){box.textContent='Please login.';return}const businessId=await getBusinessId(user);if(!businessId){box.textContent='Business workspace not found.';return}
+  const {data,error}=await supabaseClient.from('approvals').select('*').eq('business_id',businessId).order('created_at',{ascending:false}).limit(30);if(error){box.textContent='Unable to load approvals.';return}if(!data?.length){box.textContent='No approvals found.';return}
+  box.innerHTML=data.map(a=>{
+    const title=a.title||a.action||a.type||'AI action';
+    const status=String(a.status||'pending').toLowerCase();
+    const isPending=status==='pending';
+    const statusLabel=status==='approved'?'Approved':status==='rejected'?'Rejected':'Pending';
+    return `<div class="approval-item">
+      <div><strong>${escapeHtml(String(title))}</strong><span class="approval-status ${status}">${statusLabel} · ${a.created_at?new Date(a.created_at).toLocaleString():''}</span></div>
+      <div class="approval-actions">${isPending?`<button class="approve" onclick="updateApproval('${a.id}','approved')">Approve</button><button class="reject" onclick="updateApproval('${a.id}','rejected')">Reject</button>`: `<span class="approval-final-status ${status}">✓ ${statusLabel}</span>`}</div>
+    </div>`;
+  }).join('');
+}
+async function updateApproval(id,status){
+  const {data,error}=await supabaseClient.from('approvals').update({status}).eq('id',id).select('id,status').maybeSingle();
+  if(error||!data){
+    console.error('Approval update failed:',error);
+    showToast('Approval could not be updated. Please check the approval database policy.');
+    return;
+  }
+  showToast(status==='approved'?'✓ Approval confirmed successfully.': 'Approval declined successfully.');
+  await loadApprovals()
+}
+function escapeHtml(v){return v.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+
+async function loadAURASettings(){
+  const user=await getCurrentAURAUser();if(!user)return;const businessId=await getBusinessId(user);if(!businessId)return;
+  const {data}=await supabaseClient.from('businesses').select('daily_revenue_target').eq('id',businessId).maybeSingle();if(data?.daily_revenue_target!=null)document.getElementById('settingTarget').value=data.daily_revenue_target;
+  const {data:bs}=await supabaseClient.from('business_settings').select('*').eq('business_id',businessId).maybeSingle();if(bs){if(bs.network)document.getElementById('settingNetwork').value=bs.network;if(bs.market)document.getElementById('settingMarket').value=bs.market;if(bs.traffic_source)document.getElementById('settingTraffic').value=bs.traffic_source}
+}
+async function saveAURASettings(){
+  const user=await getCurrentAURAUser();if(!user){showToast('Please login first.');return}const businessId=await getBusinessId(user);if(!businessId){showToast('Business workspace not found.');return}
+  const target=Number(document.getElementById('settingTarget').value||0),network=document.getElementById('settingNetwork').value.trim(),market=document.getElementById('settingMarket').value.trim(),traffic=document.getElementById('settingTraffic').value.trim();
+  const {error:e1}=await supabaseClient.from('businesses').update({daily_revenue_target:target}).eq('id',businessId);if(e1){showToast('Target save failed: '+e1.message);return}
+  const {error:e2}=await supabaseClient.from('business_settings').upsert({business_id:businessId,network,market,traffic_source:traffic},{onConflict:'business_id'});if(e2){showToast('Settings save failed: '+e2.message);return}
+  document.getElementById('settingsResult').textContent=JSON.stringify({business_id:businessId,daily_revenue_target:target,network,market,traffic_source:traffic},null,2);showToast('Settings saved.');
+}
+
+/* =========================================================
+   CURRENT AURA USER
+   ========================================================= */
+
+async function getCurrentAURAUser(){
+
+    try{
+
+        const {
+            data
+        } =
+        await supabaseClient
+            .auth
+            .getUser();
+
+
+        if(
+            !data ||
+            !data.user
+        ){
+
+            return null;
+        }
+
+
+        return data.user;
+
+    }catch(error){
+
+        console.error(
+            error
+        );
+
+        return null;
+    }
+}
+
+</script>
+       
+    </main>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div id="toast" class="toast"></div>
+
+
+<script>
+
+/* =========================================================
+   SUPABASE CONFIG
+   ========================================================= */
+
+const SUPABASE_URL =
+    "https://tplcvnurahubfhrezmwz.supabase.co";
+
+const SUPABASE_ANON_KEY =
+    "sb_publishable_J5-3M-7L9AZLIc36ugzwBA_UwcLAVXl";
+
+
+/* =========================================================
+   SUPABASE CLIENT
+   ========================================================= */
+
+const {
+    createClient
+} = window.supabase;
+
+const supabaseClient =
+    createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+
+/* =========================================================
+   AUTH MODE
+   ========================================================= */
+
+let isSignupMode = false;
+
+
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
+
+const authPage =
+    document.getElementById("authPage");
+
+const app =
+    document.getElementById("app");
+
+const emailInput =
+    document.getElementById("email");
+
+const passwordInput =
+    document.getElementById("password");
+
+const authButton =
+    document.getElementById("authButton");
+
+const authTitle =
+    document.getElementById("authTitle");
+
+const authSubtitle =
+    document.getElementById("authSubtitle");
+
+const authMessage =
+    document.getElementById("authMessage");
+
+const switchText =
+    document.getElementById("switchText");
+
+const switchButton =
+    document.getElementById("switchButton");
+
+const profileName =
+    document.getElementById("profileName");
+
+const profileAvatar =
+    document.getElementById("profileAvatar");
+
+
+/* =========================================================
+   AUTH MODE TOGGLE
+   ========================================================= */
+
+function toggleAuthMode(){
+
+    isSignupMode =
+        !isSignupMode;
+
+    clearAuthMessage();
+
+    if(isSignupMode){
+
+        authTitle.textContent =
+            "Create your account";
+
+        authSubtitle.textContent =
+            "Start building your AI-powered marketing workspace.";
+
+        authButton.textContent =
+            "Create account";
+
+        switchText.textContent =
+            "Already have an account?";
+
+        switchButton.textContent =
+            "Login";
+
+    }else{
+
+        authTitle.textContent =
+            "Welcome back";
+
+        authSubtitle.textContent =
+            "Sign in to your AI marketing workspace.";
+
+        authButton.textContent =
+            "Login";
+
+        switchText.textContent =
+            "Don't have an account?";
+
+        switchButton.textContent =
+            "Sign up";
+    }
+}
+
+
+/* =========================================================
+   AUTH MESSAGE
+   ========================================================= */
+
+function showAuthMessage(
+    message,
+    type
+){
+
+    authMessage.textContent =
+        message;
+
+    authMessage.className =
+        "auth-message " + type;
+}
+
+
+function clearAuthMessage(){
+
+    authMessage.textContent =
+        "";
+
+    authMessage.className =
+        "auth-message";
+}
+
+
+/* =========================================================
+   LOGIN / SIGNUP
+   ========================================================= */
+
+async function handleAuth(){
+
+    const email =
+        emailInput.value.trim();
+
+    const password =
+        passwordInput.value;
+
+    clearAuthMessage();
+
+
+    if(!email){
+
+        showAuthMessage(
+            "Please enter your email address.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if(password.length < 6){
+
+        showAuthMessage(
+            "Password must be at least 6 characters.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    authButton.disabled =
+        true;
+
+    authButton.textContent =
+        isSignupMode
+            ? "Creating account..."
+            : "Signing in...";
+
+
+    try{
+
+        if(isSignupMode){
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth.signUp({
+                    email,
+                    password,
+
+                    options:{
+                        emailRedirectTo:
+                            window.location.origin
+                    }
+                });
+
+
+            if(error){
+                throw error;
+            }
+
+
+            if(data.session){
+
+                showDashboard(
+                    data.user
+                );
+
+            }else{
+
+                showAuthMessage(
+                    "Account created. Please check your email and confirm your address before logging in.",
+                    "success"
+                );
+
+            }
+
+        }else{
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+
+            if(error){
+                throw error;
+            }
+
+
+            showDashboard(
+                data.user
+            );
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        showAuthMessage(
+            getFriendlyAuthError(
+                error
+            ),
+            "error"
+        );
+
+    }finally{
+
+        authButton.disabled =
+            false;
+
+        authButton.textContent =
+            isSignupMode
+                ? "Create account"
+                : "Login";
+    }
+}
+
+
+/* =========================================================
+   AUTH ERROR
+   ========================================================= */
+
+function getFriendlyAuthError(error){
+
+    const message =
+        String(
+            error?.message || ""
+        ).toLowerCase();
+
+
+    if(
+        message.includes(
+            "invalid login credentials"
+        )
+    ){
+
+        return "Invalid email or password.";
+
+    }
+
+
+    if(
+        message.includes(
+            "email not confirmed"
+        )
+    ){
+
+        return "Please confirm your email address first.";
+
+    }
+
+
+    if(
+        message.includes(
+            "user already registered"
+        )
+    ){
+
+        return "This email is already registered. Please login.";
+
+    }
+
+
+    return (
+        error?.message ||
+        "Something went wrong. Please try again."
+    );
+}
+
+
+/* =========================================================
+   SHOW DASHBOARD
+   ========================================================= */
+
+function showDashboard(user){
+
+    setTimeout(()=>showSection('dashboard', document.querySelector('.nav-item')),0);
+
+    authPage.classList.add(
+        "hidden"
+    );
+
+    app.classList.remove(
+        "hidden"
+    );
+
+
+    if(user){
+
+        const email =
+            user.email || "User";
+
+        const firstLetter =
+            email
+                .charAt(0)
+                .toUpperCase();
+
+        profileName.textContent =
+            email.split("@")[0];
+
+        profileAvatar.textContent =
+            firstLetter;
+    }
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+async function logout(){
+
+    await supabaseClient.auth.signOut();
+
+    app.classList.add(
+        "hidden"
+    );
+
+    authPage.classList.remove(
+        "hidden"
+    );
+
+    emailInput.value =
+        "";
+
+    passwordInput.value =
+        "";
+
+    clearAuthMessage();
+
+    showToast(
+        "You have been logged out."
+    );
+}
+
+
+/* =========================================================
+   CHECK CURRENT SESSION
+   ========================================================= */
+
+async function checkSession(){
+
+    const {
+        data
+    } =
+        await supabaseClient.auth.getSession();
+
+
+    if(
+        data &&
+        data.session &&
+        data.session.user
+    ){
+
+        showDashboard(
+            data.session.user
+        );
+
+    }else{
+
+        authPage.classList.remove(
+            "hidden"
+        );
+
+        app.classList.add(
+            "hidden"
+        );
+    }
+}
+
+
+/* =========================================================
+   AUTH STATE LISTENER
+   ========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+    (event, session) => {
+
+        if(
+            session &&
+            session.user
+        ){
+
+            showDashboard(
+                session.user
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+function showSection(section, element){
+  ['auraResearchRunner','auraContentRunner','auraCampaignRunner','auraFunnelRunner'].forEach(id=>{
+    const runner=document.getElementById(id);
+    if(runner) runner.classList.remove('active');
+  });
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  if(element) element.classList.add('active');
+  const pages={dashboard:'dashboardPage',research:'researchPage',content:'contentPage',funnel:'funnelPage',campaigns:'campaignsPage',reports:'reportsPage',approvals:'approvalsPage',settings:'settingsPage'};
+  document.querySelectorAll('.aura-page').forEach(x=>x.style.display='none');
+  const page=document.getElementById(pages[section]);
+  if(page) page.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(section==='dashboard') loadEasyDashboard();
+  if(section==='reports') loadDashboardData();
+  if(section==='approvals') loadApprovals();
+  if(section==='settings') loadAURASettings();
+}
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+function searchDashboard(value){
+
+    const query =
+        value
+            .trim()
+            .toLowerCase();
+
+
+    if(!query){
+
+        document
+            .querySelectorAll(
+                ".panel,.stat-card"
+            )
+            .forEach(
+                el =>
+                    el.style.opacity =
+                        "1"
+            );
+
+        return;
+    }
+
+
+    document
+        .querySelectorAll(
+            ".panel,.stat-card"
+        )
+        .forEach(
+            el => {
+
+                const text =
+                    el.innerText
+                        .toLowerCase();
+
+                el.style.opacity =
+                    text.includes(query)
+                        ? "1"
+                        : ".28";
+            }
+        );
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+let toastTimer;
+
+
+function showToast(message){
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    toast.textContent =
+        message;
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            () => {
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2800
+        );
+}
+
+
+/* =========================================================
+   KEYBOARD SHORTCUT
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            (event.ctrlKey ||
+             event.metaKey) &&
+            event.key.toLowerCase() === "k"
+        ){
+
+            event.preventDefault();
+
+            document
+                .getElementById(
+                    "globalSearch"
+                )
+                .focus();
+        }
+
+    }
+);
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+checkSession();
+
+document.addEventListener('DOMContentLoaded',()=>{
+  updateCampaignApprovalStatus();
+  document.getElementById('campaignType')?.addEventListener('change',updateCampaignApprovalStatus);
+  document.getElementById('campaignBudget')?.addEventListener('input',updateCampaignApprovalStatus);
+});
+
+</script>
+
+</body>
+</html>
++epc.toFixed(4);if(ap)ap.textContent=pending.toLocaleString();if(note)note.textContent=(revenue||clicks||leads||conversions)?'Your workspace has recorded performance activity. Review the metrics above to track growth.':'No performance activity recorded yet. Metrics will update automatically as your workspace generates data.';}
   }catch(e){console.error(e);showToast('Dashboard data could not be loaded.')}
 }
 
