@@ -1702,6 +1702,25 @@ button{
   </div>
 </div>
 
+<div id="auraFunnelRunner" aria-live="polite">
+  <div class="aura-run-card" id="auraFunnelRunCard">
+    <div class="aura-run-head">
+      <div class="aura-run-icon" id="auraFunnelRunIcon">✦</div>
+      <div>
+        <div class="aura-run-title">AURA AI Funnel Generation</div>
+        <div class="aura-run-sub" id="auraFunnelRunnerStatus">Preparing your funnel...</div>
+      </div>
+    </div>
+    <div class="aura-run-bar"><span></span></div>
+    <div class="aura-run-steps">
+      <div class="aura-run-step active" id="auraFunnelStep1"><span class="dot"></span>Preparing funnel request</div>
+      <div class="aura-run-step" id="auraFunnelStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
+      <div class="aura-run-step" id="auraFunnelStep3"><span class="dot"></span>Building your funnel plan</div>
+    </div>
+    <div class="aura-run-complete">✓ Funnel completed</div>
+  </div>
+</div>
+
 <div id="app" class="hidden">
 
     <!-- SIDEBAR -->
@@ -1971,6 +1990,10 @@ button{
   backdrop-filter:blur(10px);
 }
 #auraCampaignRunner.active{display:flex !important}
+#auraFunnelRunner{position:fixed;inset:0;z-index:9999;display:none!important;align-items:center;justify-content:center;background:rgba(4,6,18,.72);backdrop-filter:blur(10px)}
+#auraFunnelRunner.active{display:flex!important}
+#auraFunnelRunner .aura-run-card.completed .aura-run-icon{background:linear-gradient(135deg,#00e6a0,#00b887);box-shadow:0 8px 25px rgba(0,230,160,.22)}
+#auraFunnelRunner .aura-run-card.completed .aura-run-bar span{width:100%;transform:none;animation:none;background:linear-gradient(90deg,#00e6a0,#36f2b5)}
 #auraCampaignRunner .aura-run-card.completed .aura-run-icon{
   background:linear-gradient(135deg,#00e6a0,#00b887);
   box-shadow:0 8px 25px rgba(0,230,160,.22);
@@ -3348,9 +3371,24 @@ async function getBusinessId(user){
 }
 
 async function callAURAWebhook(name,url,payload,resultId){
-  const box=document.getElementById(resultId+'Result'); if(box) box.textContent='Running AURA workflow...';
+  const box=document.getElementById(resultId+'Result');
+  if(box) box.textContent='Running AURA workflow...';
   showToast('AURA '+name+' workflow is running...');
-  try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const raw=await r.text();let data;try{data=JSON.parse(raw)}catch{data={raw}}if(!r.ok||data?.success===false)throw new Error(data?.error||'Workflow request failed');if(box)box.textContent=JSON.stringify(data,null,2);showToast('AURA '+name+' workflow completed.');return data}catch(e){if(box)box.textContent='Error: '+e.message;showToast('❌ '+e.message);return null}
+  try{
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const raw=await r.text();
+    if(!raw.trim()) throw new Error('The workflow returned an empty response.');
+    let data;
+    try{data=JSON.parse(raw)}catch{data={raw}};
+    if(!r.ok||data?.success===false) throw new Error(data?.error||'Workflow request failed');
+    if(box) box.textContent=JSON.stringify(data,null,2);
+    showToast('✓ AURA '+name+' workflow completed successfully.');
+    return data;
+  }catch(e){
+    if(box) box.textContent='Error: '+e.message;
+    showToast('❌ '+e.message);
+    return null;
+  }
 }
 
 function updateCampaignApprovalStatus(){
@@ -3373,11 +3411,54 @@ async function runAURAModule(kind){
 
   const cfg={
     content:['https://mailmarketing756.app.n8n.cloud/webhook/aura/content-creative',{business_id:businessId,content_type:({social:'social_post',blog:'blog',ad_copy:'ad_copy',video_script:'video_script'}[document.getElementById('contentType').value]||'social_post'),platform:document.getElementById('contentPlatform').value.toLowerCase(),market:document.getElementById('contentMarket').value,audience:document.getElementById('contentNiche').value||'General target audience',topic:document.getElementById('contentTopic').value,tone:'professional'}],
-    funnel:['https://mailmarketing756.app.n8n.cloud/webhook/aura/funnel-landing-page',{business_id:businessId,funnel_type:document.getElementById('funnelType').value,market:document.getElementById('funnelMarket').value,niche:document.getElementById('funnelNiche').value,traffic_source:document.getElementById('funnelTraffic').value,goal:document.getElementById('funnelGoal').value}],
+    funnel:['https://mailmarketing756.app.n8n.cloud/webhook/aura/funnel-landing-page',{business_id:businessId,page_type:({lead_generation:'landing_page',prelander:'landing_page',landing_page:'landing_page',sales_page:'sales_page',quiz:'lead_capture',thank_you_page:'thank_you_page'}[document.getElementById('funnelType').value]||'landing_page'),offer:document.getElementById('funnelGoal').value,audience:document.getElementById('funnelNiche').value||'General target audience',goal:document.getElementById('funnelGoal').value,platform:document.getElementById('funnelTraffic').value.toLowerCase().replace(/\\s+/g,'_')||'web'}],
     campaign:['https://mailmarketing756.app.n8n.cloud/webhook/aura/marketing-campaign',{business_id:businessId,campaign_type:document.getElementById('campaignType').value,platform:document.getElementById('campaignPlatform').value,objective:document.getElementById('campaignGoal').value+' — '+document.getElementById('campaignBrief').value,budget:Number(document.getElementById('campaignBudget').value||0),market:document.getElementById('campaignMarket').value,niche:document.getElementById('campaignNiche').value,approval_required:true}]
   }[kind];
 
   if(!cfg)return;
+
+  if(kind==='funnel'){
+    const runner=document.getElementById('auraFunnelRunner');
+    const card=document.getElementById('auraFunnelRunCard');
+    const icon=document.getElementById('auraFunnelRunIcon');
+    const status=document.getElementById('auraFunnelRunnerStatus');
+    const steps=['auraFunnelStep1','auraFunnelStep2','auraFunnelStep3'];
+    const runBtn=document.querySelector('[onclick="runAURAModule(\'funnel\')"]');
+    const setStep=(n,msg)=>{
+      if(status) status.textContent=msg;
+      steps.forEach((id,i)=>{
+        const el=document.getElementById(id);
+        el?.classList.toggle('active',i===n);
+        el?.classList.toggle('done',i<n);
+      });
+    };
+    runner?.classList.add('active');
+    if(runBtn){runBtn.disabled=true;runBtn.style.opacity='.6';runBtn.style.cursor='wait';}
+    setStep(0,'Preparing your funnel request...');
+    try{
+      await new Promise(r=>setTimeout(r,450));
+      setStep(1,'Sending request to AURA AI workflow...');
+      await new Promise(r=>setTimeout(r,350));
+      setStep(2,'AURA AI is building your funnel plan...');
+      const result=await callAURAWebhook('funnel',cfg[0],cfg[1],'funnel');
+      if(!result) throw new Error('Funnel workflow did not complete successfully.');
+      steps.forEach(id=>document.getElementById(id)?.classList.add('done'));
+      card?.classList.add('completed');
+      if(icon) icon.textContent='✓';
+      if(status) status.textContent='Completed successfully';
+      await new Promise(r=>setTimeout(r,1200));
+    }catch(e){
+      if(status) status.textContent='Funnel could not be generated.';
+      showToast('❌ '+e.message);
+      await new Promise(r=>setTimeout(r,900));
+    }finally{
+      runner?.classList.remove('active');
+      card?.classList.remove('completed');
+      if(icon) icon.textContent='✦';
+      if(runBtn){runBtn.disabled=false;runBtn.style.opacity='1';runBtn.style.cursor='pointer';}
+    }
+    return;
+  }
 
   if(kind==='campaign'){
     const runner=document.getElementById('auraCampaignRunner');
@@ -4039,7 +4120,7 @@ supabaseClient.auth.onAuthStateChange(
    ========================================================= */
 
 function showSection(section, element){
-  ['auraResearchRunner','auraContentRunner','auraCampaignRunner'].forEach(id=>{
+  ['auraResearchRunner','auraContentRunner','auraCampaignRunner','auraFunnelRunner'].forEach(id=>{
     const runner=document.getElementById(id);
     if(runner) runner.classList.remove('active');
   });
