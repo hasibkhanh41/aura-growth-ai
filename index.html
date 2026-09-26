@@ -3490,12 +3490,12 @@ async function loadDashboardData(){
 
 async function loadApprovals(){
   const box=document.getElementById('approvalList');if(!box)return;const user=await getCurrentAURAUser();if(!user){box.textContent='Please login.';return}const businessId=await getBusinessId(user);if(!businessId){box.textContent='Business workspace not found.';return}
-  const {data,error}=await supabaseClient.from('approvals').select('*').eq('business_id',businessId).order('created_at',{ascending:false}).limit(30);if(error){box.textContent=error.message;return}if(!data?.length){box.textContent='No approvals found.';return}
-  box.innerHTML=data.map(a=>{const title=a.title||a.action||a.type||'AI action';const status=a.status||'pending';return `<div class="approval-item"><div><strong>${escapeHtml(String(title))}</strong><span>${escapeHtml(String(status))} · ${a.created_at?new Date(a.created_at).toLocaleString():''}</span></div><div class="approval-actions"><button class="approve" onclick="updateApproval('${a.id}','approved')">Approve</button><button class="reject" onclick="updateApproval('${a.id}','rejected')">Reject</button></div></div>`}).join('');
+  const {data,error}=await supabaseClient.from('approvals').select('*').eq('business_id',businessId).eq('status','pending').order('created_at',{ascending:false}).limit(30);if(error){box.textContent=error.message;return}if(!data?.length){box.textContent='No pending approvals.';return}
+  box.innerHTML=data.map(a=>{const title=a.title||a.action||a.type||'AI action';return `<div class="approval-item"><div><strong>${escapeHtml(String(title))}</strong><span>pending · ${a.created_at?new Date(a.created_at).toLocaleString():''}</span></div><div class="approval-actions"><button class="approve" onclick="updateApproval('${a.id}','approved')">Approve</button><button class="reject" onclick="updateApproval('${a.id}','rejected')">Reject</button></div></div>`}).join('');
 }
 async function updateApproval(id,status){
-  const {error}=await supabaseClient.from('approvals').update({status}).eq('id',id);
-  if(error){showToast('Unable to update approval. Please try again.');return}
+  const {data,error}=await supabaseClient.from('approvals').update({status}).eq('id',id).select('id,status').maybeSingle();
+  if(error||!data){showToast('Unable to update approval. Please try again.');return}
   if(status==='approved'){
     showToast('✓ Approval confirmed. The requested AURA action is now approved.');
   }else if(status==='rejected'){
@@ -3503,7 +3503,7 @@ async function updateApproval(id,status){
   }else{
     showToast('Approval status updated successfully.');
   }
-  loadApprovals()
+  await loadApprovals()
 }
 function escapeHtml(v){return v.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 
