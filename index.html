@@ -1683,7 +1683,24 @@ button{
   </div>
 </div>
 
-
+<div id="auraCampaignRunner" aria-live="polite">
+  <div class="aura-run-card" id="auraCampaignRunCard">
+    <div class="aura-run-head">
+      <div class="aura-run-icon" id="auraCampaignRunIcon">✦</div>
+      <div>
+        <div class="aura-run-title">AURA AI Campaign Generation</div>
+        <div class="aura-run-sub" id="auraCampaignRunnerStatus">Preparing your campaign...</div>
+      </div>
+    </div>
+    <div class="aura-run-bar"><span></span></div>
+    <div class="aura-run-steps">
+      <div class="aura-run-step active" id="auraCampaignStep1"><span class="dot"></span>Preparing campaign request</div>
+      <div class="aura-run-step" id="auraCampaignStep2"><span class="dot"></span>Sending to AURA AI workflow</div>
+      <div class="aura-run-step" id="auraCampaignStep3"><span class="dot"></span>Generating your campaign plan</div>
+    </div>
+    <div class="aura-run-complete">✓ Campaign completed</div>
+  </div>
+</div>
 
 <div id="app" class="hidden">
 
@@ -3328,6 +3345,51 @@ async function runAURAModule(kind){
   }[kind];
 
   if(!cfg)return;
+
+  if(kind==='campaign'){
+    const runner=document.getElementById('auraCampaignRunner');
+    const card=document.getElementById('auraCampaignRunCard');
+    const icon=document.getElementById('auraCampaignRunIcon');
+    const status=document.getElementById('auraCampaignRunnerStatus');
+    const steps=['auraCampaignStep1','auraCampaignStep2','auraCampaignStep3'];
+    const runBtn=document.querySelector('[onclick="runAURAModule(\'campaign\')"]');
+    const setStep=(n,msg)=>{
+      if(status) status.textContent=msg;
+      steps.forEach((id,i)=>{
+        const el=document.getElementById(id);
+        el?.classList.toggle('active',i===n);
+        el?.classList.toggle('done',i<n);
+      });
+    };
+
+    runner?.classList.add('active');
+    if(runBtn){runBtn.disabled=true;runBtn.style.opacity='.6';runBtn.style.cursor='wait';}
+    setStep(0,'Preparing your campaign request...');
+
+    try{
+      await new Promise(r=>setTimeout(r,450));
+      setStep(1,'Sending request to AURA AI workflow...');
+      await new Promise(r=>setTimeout(r,350));
+      setStep(2,'AURA AI is generating your campaign plan...');
+      const result=await callAURAWebhook('campaign',cfg[0],cfg[1],'campaign');
+      if(!result) throw new Error('Campaign workflow did not complete successfully.');
+      steps.forEach(id=>document.getElementById(id)?.classList.add('done'));
+      card?.classList.add('completed');
+      if(icon) icon.textContent='✓';
+      if(status) status.textContent='Completed successfully';
+      await new Promise(r=>setTimeout(r,1200));
+    }catch(e){
+      if(status) status.textContent='Campaign could not be generated.';
+      showToast('❌ '+e.message);
+      await new Promise(r=>setTimeout(r,900));
+    }finally{
+      runner?.classList.remove('active');
+      card?.classList.remove('completed');
+      if(icon) icon.textContent='✦';
+      if(runBtn){runBtn.disabled=false;runBtn.style.opacity='1';runBtn.style.cursor='pointer';}
+    }
+    return;
+  }
 
   if(kind!=='content'){
     await callAURAWebhook(kind,cfg[0],cfg[1],kind);
