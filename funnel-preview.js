@@ -1,6 +1,6 @@
 (function(){
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const cleanText=v=>String(v??'').replace(/<\\/?(h1|h2|h3|h4|p|strong|em|br|ul|ol|li)[^>]*>/gi,' ').replace(/<[^>]*>/g,'').replace(/\\s+/g,' ').trim();
+  const cleanText=v=>String(v??'').replace(/<\/?(h1|h2|h3|h4|p|strong|em|br|ul|ol|li)[^>]*>/gi,' ').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
   const css=`
     .aura-live-preview{margin-top:18px;border:1px solid #292d51;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#0d1023,#080a18);box-shadow:0 20px 60px rgba(0,0,0,.28)}
     .aura-live-hero{padding:42px 34px 34px;text-align:center;background:radial-gradient(circle at 50% 0%,rgba(169,0,255,.18),transparent 55%)}
