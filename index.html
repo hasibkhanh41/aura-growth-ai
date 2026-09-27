@@ -4689,7 +4689,7 @@ async function renderPublicLandingPageFromUrl(){
 
   try{
     const {data,error}=await supabaseClient.from('landing_pages')
-      .select('headline,subheadline,body_content,call_to_action,page_type,status,public_slug,created_at,page_data')
+      .select('id,business_id,offer_id,audience_id,campaign_id,headline,subheadline,body_content,call_to_action,page_type,status,public_slug,created_at,page_data')
       .eq('public_slug',slug)
       .eq('status','generated')
       .maybeSingle();
@@ -4719,6 +4719,12 @@ async function renderPublicLandingPageFromUrl(){
     const cta=clean(data.call_to_action||'Get Started');
 
     const meta=data.page_data||{};
+    const landingPageId=data.id;
+    const businessId=data.business_id;
+    const offerId=data.offer_id||null;
+    const audienceId=data.audience_id||null;
+    const campaignId=data.campaign_id||null;
+    const eligibility=clean(meta.eligibility||'Check the offer eligibility requirements before submitting.');
     const offer=clean(meta.offer||'');
     const audience=clean(meta.audience||'');
     const goal=clean(meta.goal||'');
@@ -4727,10 +4733,18 @@ async function renderPublicLandingPageFromUrl(){
     const context=(offer+' '+audience+' '+goal+' '+pageType+' '+body).toLowerCase();
 
     const hash=[...String(slug)].reduce((n,ch)=>((n*31)+ch.charCodeAt(0))>>>0,7);
-    const requestedVariant=Number(new URLSearchParams(window.location.search).get('variant'));
-    const variantIndex=Number.isFinite(requestedVariant)&&requestedVariant>=1&&requestedVariant<=5
-      ? requestedVariant-1
-      : hash%5;
+    const params=new URLSearchParams(window.location.search);
+    const requestedVariant=Number(params.get('variant'));
+    const variantStorageKey='aura_variant_'+String(slug);
+    let assignedVariant=Number(localStorage.getItem(variantStorageKey));
+    if(!Number.isFinite(assignedVariant)||assignedVariant<1||assignedVariant>5){
+      assignedVariant=(hash%5)+1;
+      try{localStorage.setItem(variantStorageKey,String(assignedVariant));}catch(_){}
+    }
+    const variantNumber=Number.isFinite(requestedVariant)&&requestedVariant>=1&&requestedVariant<=5
+      ? requestedVariant
+      : assignedVariant;
+    const variantIndex=variantNumber-1;
 
     const themes=[
       {name:'aurora',accent:'#a900ff',accent2:'#5d2cff',soft:'rgba(169,0,255,.18)',orb:'rgba(90,40,255,.14)'},
