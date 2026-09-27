@@ -1922,6 +1922,26 @@ async function runAudienceIntelligence(){
   </div>
 </div>
 
+<div id="auraAudienceRunner" aria-live="polite">
+  <div class="aura-run-card" id="auraAudienceRunCard">
+    <div class="aura-run-head">
+      <div class="aura-run-icon" id="auraAudienceRunIcon">✦</div>
+      <div>
+        <div class="aura-run-title">AURA AI Audience Intelligence</div>
+        <div class="aura-run-sub" id="auraAudienceRunnerStatus">Preparing your audience research...</div>
+      </div>
+    </div>
+    <div class="aura-run-bar"><span></span></div>
+    <div class="aura-run-steps">
+      <div class="aura-run-step active" id="auraAudienceStep1"><span class="dot"></span>Preparing</div>
+      <div class="aura-run-step" id="auraAudienceStep2"><span class="dot"></span>Connecting</div>
+      <div class="aura-run-step" id="auraAudienceStep3"><span class="dot"></span>Processing</div>
+    </div>
+    <button type="button" id="auraAudienceCancel" class="aura-run-cancel" onclick="cancelAURARunner('auraAudienceRunner')">Cancel</button>
+    <div class="aura-run-complete">✓ Audience intelligence completed</div>
+  </div>
+</div>
+
 <div id="app" class="hidden">
 
     <!-- SIDEBAR -->
@@ -2187,6 +2207,11 @@ async function runAudienceIntelligence(){
   position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;
   background:rgba(4,6,18,.72);backdrop-filter:blur(10px);
 }
+#auraAudienceRunner{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(4,6,18,.72);backdrop-filter:blur(10px)}
+#auraAudienceRunner.active{display:flex}
+#auraAudienceRunner .aura-run-card.completed .aura-run-icon{background:linear-gradient(135deg,#00e6a0,#00b887);box-shadow:0 8px 25px rgba(0,230,160,.22)}
+#auraAudienceRunner .aura-run-card.completed .aura-run-bar span{width:100%;transform:none;animation:none;background:linear-gradient(90deg,#00e6a0,#36f2b5)}
+
 #auraContentRunner.active{display:flex}
 #auraCampaignRunner{
   position:fixed;
@@ -4625,7 +4650,7 @@ supabaseClient.auth.onAuthStateChange(
    ========================================================= */
 
 function showSection(section, element){
-  ['auraResearchRunner','auraContentRunner','auraCampaignRunner','auraFunnelRunner'].forEach(id=>{
+  ['auraResearchRunner','auraContentRunner','auraCampaignRunner','auraFunnelRunner','auraAudienceRunner'].forEach(id=>{
     const runner=document.getElementById(id);
     if(runner) runner.classList.remove('active');
   });
