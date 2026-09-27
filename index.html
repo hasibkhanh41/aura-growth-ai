@@ -3977,6 +3977,9 @@ async function runAURAModule(kind){
       await new Promise(r=>setTimeout(r,350));
       setStep(2,'AURA AI is building your funnel plan...');
       const result=await callAURAWebhook('funnel',cfg[0],cfg[1],'funnel');
+      if(typeof window.renderAURALiveFunnelPreview==='function'){
+        await window.renderAURALiveFunnelPreview(cfg[1],businessId);
+      }
       if(auraRunCancelled) return;
     if(!result) throw new Error('Funnel workflow did not complete successfully.');
       steps.forEach(id=>document.getElementById(id)?.classList.add('done'));
