@@ -1570,7 +1570,24 @@ button{
 .module-button{height:44px;padding:0 18px;border:0;border-radius:11px;color:white;font-weight:800;background:linear-gradient(135deg,#a900ff,#702cff);box-shadow:0 10px 30px rgba(126,44,255,.25);cursor:pointer}.module-button.small{height:38px;padding:0 14px;font-size:11px}.module-result{margin-top:18px;min-height:160px;padding:16px;border:1px solid #292d51;border-radius:13px;background:#080b1b;color:#bfc4dd;white-space:pre-wrap;overflow:auto;font-size:11px;line-height:1.6}.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.report-grid>div{padding:18px;border:1px solid #292d51;border-radius:14px;background:#0b0e21}.report-grid span{display:block;color:#858aa8;font-size:10px;margin-bottom:8px}.report-grid strong{font-size:24px}.approval-list{display:grid;gap:10px}.approval-item{padding:16px;border:1px solid #292d51;border-radius:13px;background:#0b0e21;display:flex;justify-content:space-between;gap:15px;align-items:center}.approval-item strong{font-size:12px}.approval-item span{display:block;color:#858aa8;font-size:10px;margin-top:4px}.approval-actions{display:flex;gap:7px}.approval-actions button{border:1px solid #343961;background:#11142a;color:#cfd3e9;border-radius:8px;padding:7px 10px;font-size:10px;cursor:pointer}.approval-actions .approve{border-color:rgba(0,230,160,.3);color:#00e6a0}.approval-actions .reject{border-color:rgba(255,85,119,.3);color:#ff7d94}
 @media(max-width:800px){.module-grid,.report-grid{grid-template-columns:1fr}.module-grid .full{grid-column:auto}.module-head{flex-direction:column}.approval-item{align-items:flex-start;flex-direction:column}}
 
-.approval-status{display:block;margin-top:6px;text-transform:capitalize;font-size:12px}.approval-status.approved{color:#00e6a0}.approval-status.rejected{color:#ff7181}.approval-status.pending{color:#a8afcf}.approval-final-status{display:inline-flex;align-items:center;padding:8px 12px;border-radius:9px;font-size:12px;font-weight:700}.approval-final-status.approved{color:#00e6a0;background:rgba(0,230,160,.08);border:1px solid rgba(0,230,160,.18)}.approval-final-status.rejected{color:#ff7181;background:rgba(255,113,129,.08);border:1px solid rgba(255,113,129,.18)}.funnel-build-button{min-width:150px;height:46px;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:0 18px;border-radius:11px;font-size:14px;font-weight:700;letter-spacing:.1px;box-shadow:0 8px 20px rgba(126,34,255,.18);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}.funnel-build-button .button-icon{font-size:14px}.funnel-build-button .button-arrow{font-size:16px;opacity:.85;transition:transform .18s ease}.funnel-build-button:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(126,34,255,.26);filter:brightness(1.04)}.funnel-build-button:hover .button-arrow{transform:translateX(3px)}.funnel-build-button:active{transform:translateY(0)}.report-summary{margin-top:18px;border:1px solid rgba(148,163,184,.16);border-radius:16px;background:linear-gradient(180deg,rgba(17,24,45,.72),rgba(9,13,29,.72));padding:20px}.report-summary-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.report-summary-head strong{display:block;font-size:15px}.report-summary-head span:not(.report-live-dot){display:block;margin-top:5px;font-size:12px;color:#8f98b8}.report-live-dot{font-size:11px;color:#00e6a0;padding:7px 10px;border:1px solid rgba(0,230,160,.2);border-radius:999px;background:rgba(0,230,160,.06)}.report-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.report-summary-grid>div{padding:15px;border:1px solid rgba(148,163,184,.12);border-radius:12px;background:rgba(255,255,255,.015)}.report-summary-grid span{display:block;font-size:11px;color:#8f98b8;margin-bottom:7px}.report-summary-grid strong{font-size:18px}.report-summary-note{margin-top:14px;padding-top:14px;border-top:1px solid rgba(148,163,184,.1);font-size:12px;line-height:1.6;color:#8f98b8}@media(max-width:700px){.report-summary-grid{grid-template-columns:1fr}}<style>
+.approval-status{display:block;margin-top:6px;text-transform:capitalize;font-size:12px}.approval-status.approved{color:#00e6a0}.approval-status.rejected{color:#ff7181}.approval-status.pending{color:#a8afcf}.approval-final-status{display:inline-flex;align-items:center;padding:8px 12px;border-radius:9px;font-size:12px;font-weight:700}.approval-final-status.approved{color:#00e6a0;background:rgba(0,230,160,.08);border:1px solid rgba(0,230,160,.18)}.approval-final-status.rejected{color:#ff7181;background:rgba(255,113,129,.08);border:1px solid rgba(255,113,129,.18)}
+.offer-save-status{display:flex;align-items:center;gap:11px;min-height:62px!important;padding:13px 15px!important;border-radius:13px!important;background:linear-gradient(135deg,rgba(0,230,160,.08),rgba(0,184,135,.035))!important;border:1px solid rgba(0,230,160,.18)!important;white-space:normal!important}
+.offer-save-status .offer-save-icon{width:30px;height:30px;display:grid;place-items:center;flex:0 0 30px;border-radius:9px;background:rgba(0,230,160,.12);color:#00e6a0;font-size:15px;font-weight:900}
+.offer-save-status .offer-save-title{color:#f5fff9;font-size:12px;font-weight:800;line-height:1.3}
+.offer-save-status .offer-save-sub{margin-top:3px;color:#7f8ca3;font-size:10px;line-height:1.4}
+.offer-save-status.is-idle{color:#747995;background:#080b1b!important;border-color:#292d51!important}
+.offer-save-status.is-idle .offer-save-icon{background:rgba(148,163,184,.08);color:#8e93b5}
+.offer-card{position:relative;padding:17px!important;border:1px solid #292d51!important;border-radius:14px!important;background:linear-gradient(145deg,#0d1022,#090c1b)!important;overflow:hidden}
+.offer-card:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(180deg,#a900ff,#702cff);border-radius:3px}
+.offer-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.offer-card-name{color:#fff;font-size:13px;font-weight:800}
+.offer-card-status{display:inline-flex;align-items:center;gap:5px;color:#00e6a0;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:5px 8px;border:1px solid rgba(0,230,160,.16);background:rgba(0,230,160,.05);border-radius:999px}
+.offer-card-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.offer-card-meta span{padding:5px 8px;border:1px solid rgba(148,163,184,.12);border-radius:7px;background:rgba(255,255,255,.02);color:#9da5bd;font-size:9px}
+.offer-card-provider{margin-top:10px;color:#747995;font-size:10px}
+.offer-card-provider strong{color:#c9cee0;font-weight:700}
+.offer-card-source{margin-top:9px;color:#69718c;font-size:9px}
+.funnel-build-button{min-width:150px;height:46px;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:0 18px;border-radius:11px;font-size:14px;font-weight:700;letter-spacing:.1px;box-shadow:0 8px 20px rgba(126,34,255,.18);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}.funnel-build-button .button-icon{font-size:14px}.funnel-build-button .button-arrow{font-size:16px;opacity:.85;transition:transform .18s ease}.funnel-build-button:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(126,34,255,.26);filter:brightness(1.04)}.funnel-build-button:hover .button-arrow{transform:translateX(3px)}.funnel-build-button:active{transform:translateY(0)}.report-summary{margin-top:18px;border:1px solid rgba(148,163,184,.16);border-radius:16px;background:linear-gradient(180deg,rgba(17,24,45,.72),rgba(9,13,29,.72));padding:20px}.report-summary-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.report-summary-head strong{display:block;font-size:15px}.report-summary-head span:not(.report-live-dot){display:block;margin-top:5px;font-size:12px;color:#8f98b8}.report-live-dot{font-size:11px;color:#00e6a0;padding:7px 10px;border:1px solid rgba(0,230,160,.2);border-radius:999px;background:rgba(0,230,160,.06)}.report-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.report-summary-grid>div{padding:15px;border:1px solid rgba(148,163,184,.12);border-radius:12px;background:rgba(255,255,255,.015)}.report-summary-grid span{display:block;font-size:11px;color:#8f98b8;margin-bottom:7px}.report-summary-grid strong{font-size:18px}.report-summary-note{margin-top:14px;padding-top:14px;border-top:1px solid rgba(148,163,184,.1);font-size:12px;line-height:1.6;color:#8f98b8}@media(max-width:700px){.report-summary-grid{grid-template-columns:1fr}}<style>
 .content-result-panel{
   white-space:normal !important;
   text-align:left;
@@ -2486,7 +2503,13 @@ button{
       <button type="button" class="module-button" onclick="saveAURAOffer()">Save Offer →</button>
     </div>
 
-    <div id="offerStatus" class="module-result" style="min-height:60px;margin-top:14px;">No offer saved yet.</div>
+    <div id="offerStatus" class="module-result offer-save-status is-idle" style="margin-top:14px;">
+  <div class="offer-save-icon">•</div>
+  <div>
+    <div class="offer-save-title">Ready to save</div>
+    <div class="offer-save-sub">Your offer details will be stored securely in this workspace.</div>
+  </div>
+</div>
 
     <div style="margin-top:22px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;">
@@ -4830,13 +4853,20 @@ async function loadAURAOffers(){
     list.innerHTML=data.map(offer=>{
       const payout=offer.payout==null?'—':String(offer.payout)+' '+String(offer.payout_currency||'USD');
       const source=String(offer.source_data?.source_type||'Test / Authorized');
-      return '<div class="approval-item" style="align-items:flex-start;">'+
-        '<div style="min-width:0;">'+
-          '<strong>'+escapeHtml(String(offer.offer_name||'Unnamed offer'))+'</strong>'+
-          '<span>'+escapeHtml(String(offer.market||''))+' · '+escapeHtml(String(offer.niche||''))+' · '+escapeHtml(String(offer.offer_type||'').replace(/_/g,' '))+'</span>'+
-          '<span>'+escapeHtml(String(offer.provider_name||'Provider not set'))+' · '+escapeHtml(payout)+' · '+escapeHtml(String(offer.conversion_type||'conversion'))+'</span>'+
-          '<span>'+escapeHtml(source)+' · '+escapeHtml(String(offer.status||'active'))+'</span>'+
+      return '<div class="offer-card">'+
+        '<div class="offer-card-head">'+
+          '<div class="offer-card-name">'+escapeHtml(String(offer.offer_name||'Unnamed offer'))+'</div>'+
+          '<span class="offer-card-status">● '+escapeHtml(String(offer.status||'active'))+'</span>'+
         '</div>'+
+        '<div class="offer-card-meta">'+
+          '<span>'+escapeHtml(String(offer.market||'Market not set'))+'</span>'+
+          '<span>'+escapeHtml(String(offer.niche||'Niche not set'))+'</span>'+
+          '<span>'+escapeHtml(String(offer.offer_type||'').replace(/_/g,' '))+'</span>'+
+          '<span>'+escapeHtml(String(offer.conversion_type||'conversion'))+'</span>'+
+          '<span>'+escapeHtml(payout)+'</span>'+
+        '</div>'+
+        '<div class="offer-card-provider">Provider / Network: <strong>'+escapeHtml(String(offer.provider_name||'Not set'))+'</strong></div>'+
+        '<div class="offer-card-source">'+escapeHtml(source)+'</div>'+
       '</div>';
     }).join('');
   }catch(e){
@@ -4907,12 +4937,18 @@ async function saveAURAOffer(){
     const {error}=await supabaseClient.from('offers').insert(payload);
     if(error)throw error;
 
-    if(status)status.textContent='Offer saved successfully.';
+    if(status){
+      status.classList.remove('is-idle');
+      status.innerHTML='<div class="offer-save-icon">✓</div><div><div class="offer-save-title">Offer saved successfully</div><div class="offer-save-sub">This offer is now available in your AURA workspace for the next testing steps.</div></div>';
+    }
     showToast('✓ Offer saved successfully.');
     await loadAURAOffers();
   }catch(e){
     console.error('Offer save failed:',e);
-    if(status)status.textContent='Offer could not be saved.';
+    if(status){
+      status.classList.remove('is-idle');
+      status.innerHTML='<div class="offer-save-icon">!</div><div><div class="offer-save-title">Offer could not be saved</div><div class="offer-save-sub">'+escapeHtml(e?.message||'Please check the workspace data permissions and try again.')+'</div></div>';
+    }
     showToast('❌ '+(e?.message||'Offer save failed.'));
   }
 }
