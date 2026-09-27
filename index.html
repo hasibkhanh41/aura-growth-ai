@@ -4689,7 +4689,7 @@ async function renderPublicLandingPageFromUrl(){
 
   try{
     const {data,error}=await supabaseClient.from('landing_pages')
-      .select('id,business_id,offer_id,audience_id,campaign_id,headline,subheadline,body_content,call_to_action,page_type,status,public_slug,created_at,page_data')
+      .select('id,business_id,offer_id,audience_id,campaign_id,headline,subheadline,body_content,call_to_action,page_type,status,public_slug,created_at,page_data,affiliate_url,tracking_param,tracking_enabled')
       .eq('public_slug',slug)
       .eq('status','generated')
       .maybeSingle();
@@ -4730,6 +4730,10 @@ async function renderPublicLandingPageFromUrl(){
     const goal=clean(meta.goal||'');
     const platform=clean(meta.platform||'');
     const pageType=clean(data.page_type||'landing page').replace(/[_-]+/g,' ');
+    const affiliateUrl=String(data.affiliate_url||meta.affiliate_url||'').trim();
+    const trackingParam=String(data.tracking_param||meta.tracking_param||'subid').trim();
+    const trackingEnabled=data.tracking_enabled!==false;
+    const buildTrackedOfferUrl=(clickId)=>{if(!affiliateUrl)return '';try{const u=new URL(affiliateUrl,window.location.href);if(trackingEnabled&&trackingParam&&trackingParam.toLowerCase()!=='none'){u.searchParams.set(trackingParam,clickId);}return u.toString();}catch(_){return affiliateUrl;}};
     const context=(offer+' '+audience+' '+goal+' '+pageType+' '+body).toLowerCase();
 
     const hash=[...String(slug)].reduce((n,ch)=>((n*31)+ch.charCodeAt(0))>>>0,7);
@@ -4886,9 +4890,9 @@ async function renderPublicLandingPageFromUrl(){
     const getSessionId=()=>{const key='aura_session_id';let value='';try{value=localStorage.getItem(key)||'';}catch(_){}if(!value){value=(globalThis.crypto&&crypto.randomUUID)?crypto.randomUUID():('s_'+Date.now()+'_'+Math.random().toString(36).slice(2));try{localStorage.setItem(key,value);}catch(_){}}return value;};
     const scrollToId=id=>document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
     const sessionId=getSessionId();
-    const trackClick=async(buttonLabel)=>{try{await supabaseClient.from('clicks').insert({business_id:businessId,campaign_id:campaignId,landing_page_id:landingPageId,offer_id:offerId,audience_id:audienceId,click_id:(globalThis.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now()),session_id:sessionId,source:(params.get('utm_source')||'landing_page'),medium:(params.get('utm_medium')||'organic'),campaign_source:params.get('utm_campaign')||null,referrer:document.referrer||null,destination_url:window.location.href,device_type:/mobile|android|iphone|ipad/i.test(navigator.userAgent)?'mobile':'desktop',metadata:{variant:variantNumber,layout:layout.name,button_label:buttonLabel,event_type:'cta_click'}});}catch(error){console.warn('AURA click tracking failed',error);}};
-    host.querySelectorAll('[data-scroll-cta],[data-scroll-top]').forEach(btn=>btn.addEventListener('click',()=>{trackClick(btn.textContent.trim());scrollToId('aura-lead-form');}));
-    host.querySelectorAll('[data-scroll-details]').forEach(btn=>btn.addEventListener('click',()=>{trackClick(btn.textContent.trim());scrollToId('aura-details');}));
+    const trackClick=async(buttonLabel)=>{const clickId=(globalThis.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now());try{await supabaseClient.from('clicks').insert({business_id:businessId,campaign_id:campaignId,landing_page_id:landingPageId,offer_id:offerId,audience_id:audienceId,click_id:clickId,session_id:sessionId,source:(params.get('utm_source')||'landing_page'),medium:(params.get('utm_medium')||'organic'),campaign_source:params.get('utm_campaign')||null,referrer:document.referrer||null,destination_url:window.location.href,device_type:/mobile|android|iphone|ipad/i.test(navigator.userAgent)?'mobile':'desktop',metadata:{variant:variantNumber,layout:layout.name,button_label:buttonLabel,event_type:'cta_click',affiliate_routing:Boolean(affiliateUrl),tracking_param:trackingParam}});}catch(error){console.warn('AURA click tracking failed',error);}return {clickId,offerUrl:buildTrackedOfferUrl(clickId)};};
+    host.querySelectorAll('[data-scroll-cta],[data-scroll-top]').forEach(btn=>btn.addEventListener('click',async()=>{const result=await trackClick(btn.textContent.trim());if(result.offerUrl){window.location.href=result.offerUrl;return;}scrollToId('aura-lead-form');}));
+    host.querySelectorAll('[data-scroll-details]').forEach(btn=>btn.addEventListener('click',async()=>{const result=await trackClick(btn.textContent.trim());if(result.offerUrl){window.location.href=result.offerUrl;return;}scrollToId('aura-details');}));
     const leadForm=document.getElementById('auraLeadForm');
     const leadStatus=document.getElementById('auraLeadStatus');
     leadForm?.addEventListener('submit',async event=>{event.preventDefault();const form=new FormData(leadForm);const email=String(form.get('email')||'').trim().toLowerCase();const name=String(form.get('full_name')||'').trim();const website=String(form.get('website')||'').trim();const consent=Boolean(form.get('consent'));if(website){leadStatus.textContent='Please use the form normally.';return;}if(!email||!email.includes('@')||!consent){leadStatus.textContent='Enter a valid email and confirm the consent box.';return;}const submit=leadForm.querySelector('button[type="submit"]');submit.disabled=true;submit.style.opacity='.65';leadStatus.textContent='Submitting…';const {error}=await supabaseClient.from('leads').insert({business_id:businessId,audience_id:audienceId,landing_page_id:landingPageId,full_name:name||null,email,source:'aura_landing_page',source_url:window.location.href,lead_type:'landing_page',consent_status:'opted_in',qualification_status:'new',source_data:{variant:variantNumber,layout:layout.name,session_id:sessionId,page_slug:String(slug),campaign_id:campaignId,offer_id:offerId,utm_source:params.get('utm_source')||null,utm_medium:params.get('utm_medium')||null,utm_campaign:params.get('utm_campaign')||null,consented_at:new Date().toISOString()}});submit.disabled=false;submit.style.opacity='1';if(error){console.error('AURA lead capture failed',error);leadStatus.textContent='We could not submit this right now. Please try again.';return;}leadForm.innerHTML='<div style="padding:14px;border:1px solid rgba(134,239,172,.22);border-radius:12px;background:rgba(134,239,172,.06);color:#a7f3d0;font-size:12px;line-height:1.6"><strong>Thanks — your request was submitted.</strong><br>Your voluntarily provided information was recorded for this campaign.</div>';});
