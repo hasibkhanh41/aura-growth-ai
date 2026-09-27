@@ -4706,7 +4706,8 @@ async function renderPublicLandingPageFromUrl(){
       .replace(/<[^>]*>/g,' ')
       .replace(/^\s*#{1,6}\s*/,'')
       .replace(/\*\*/g,'')
-      .replace(/\[\s*(visual representation|form input field|headline|subheadline|call to action|cta)[^\]]*\]\s*:?/gi,'')
+      .replace(/\[\s*(visual representation|form input field|email address input field|headline|subheadline|call to action|cta|hero section)[^\]]*\]\s*:?/gi,'')
+      .replace(/^\s*(hero section|hero|headline|subheadline|body|visual representation|form input field|email address input field|cta|call to action)\s*:\s*/i,'')
       .replace(/^\s*(headline|subheadline|body|visual representation|form input field|cta|call to action)\s*:\s*/i,'')
       .replace(/\s+/g,' ')
       .trim();
