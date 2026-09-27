@@ -4726,6 +4726,10 @@ async function renderPublicLandingPageFromUrl(){
     const context=(offer+' '+audience+' '+goal+' '+pageType+' '+body).toLowerCase();
 
     const hash=[...String(slug)].reduce((n,ch)=>((n*31)+ch.charCodeAt(0))>>>0,7);
+    const requestedVariant=Number(new URLSearchParams(window.location.search).get('variant'));
+    const variantIndex=Number.isFinite(requestedVariant)&&requestedVariant>=1&&requestedVariant<=5
+      ? requestedVariant-1
+      : hash%5;
 
     const themes=[
       {name:'aurora',accent:'#a900ff',accent2:'#5d2cff',soft:'rgba(169,0,255,.18)',orb:'rgba(90,40,255,.14)'},
@@ -4740,12 +4744,11 @@ async function renderPublicLandingPageFromUrl(){
       {name:'steps',label:'Action plan',icon:'→'},
       {name:'cards',label:'Resource kit',icon:'▦'},
       {name:'minimal',label:'Simple offer',icon:'◌'},
-      {name:'spotlight',label:'Campaign spotlight',icon:'◆'},
-      {name:'editorial',label:'Expert guide',icon:'✎'}
+      {name:'spotlight',label:'Campaign spotlight',icon:'◆'}
     ];
 
-    const theme=themes[hash%themes.length];
-    const layout=layouts[Math.floor(hash/themes.length)%layouts.length];
+    const theme=themes[variantIndex];
+    const layout=layouts[variantIndex];
 
     const rawLines=bodyRaw
       .split(/\n+/)
@@ -4838,7 +4841,7 @@ async function renderPublicLandingPageFromUrl(){
 
     host.innerHTML=css+
       '<main class="aura-public">'+
-      '<nav class="aura-nav"><div class="aura-brand"><div class="aura-brand-mark">A</div><div>AURA<small>Growth AI</small></div></div><div class="aura-nav-pill">'+esc(layout.label)+'</div></nav>'+
+      '<nav class="aura-nav"><div class="aura-brand"><div class="aura-brand-mark">A</div><div>AURA<small>Growth AI</small></div></div><div class="aura-nav-pill">Concept '+(variantIndex+1)+' of 5 · '+esc(layout.label)+'</div></nav>'+
       '<div class="aura-wrap">'+
       '<header class="aura-hero"><div class="aura-badge"><i class="aura-dot"></i>'+esc(contextLabel)+'</div><h1>'+heroTitle+'</h1><p>'+esc(sub||audienceLine)+'</p>'+
       '<div class="aura-actions"><button class="aura-btn" type="button" onclick="document.getElementById(&quot;aura-cta&quot;).scrollIntoView({behavior:&quot;smooth&quot;})">'+esc(cta)+'</button><button class="aura-btn secondary" type="button" onclick="document.getElementById(&quot;aura-details&quot;).scrollIntoView({behavior:&quot;smooth&quot;})">See what’s included</button></div>'+
