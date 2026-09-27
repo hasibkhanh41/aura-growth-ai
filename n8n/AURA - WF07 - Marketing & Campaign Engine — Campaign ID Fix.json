@@ -1,0 +1,795 @@
+{
+  "name": "AURA - WF07 - Marketing & Campaign Engine — Campaign ID Fix",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aura/marketing-campaign",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1760,
+        -64
+      ],
+      "id": "5829e149-4be3-4baf-a08b-f8fa08c78f94",
+      "name": "Webhook",
+      "webhookId": "8b31844d-abd9-497c-9e19-71d2eff8847e"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.body ?? $json;\n\nconst businessId = String(data.business_id ?? '').trim();\nconst campaignType = String(data.campaign_type ?? 'organic').trim().toLowerCase();\nconst platform = String(data.platform ?? '').trim().toLowerCase();\nconst objective = String(data.objective ?? '').trim();\nconst budget = Number(data.budget ?? 0);\n\nconst uuidRegex =\n  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;\n\nif (!businessId) {\n  return {\n    json: {\n      success: false,\n      valid: false,\n      error: 'business_id is required'\n    }\n  };\n}\n\nif (!uuidRegex.test(businessId)) {\n  return {\n    json: {\n      success: false,\n      valid: false,\n      error: 'Invalid business_id UUID'\n    }\n  };\n}\n\nconst allowedCampaignTypes = [\n  'organic',\n  'paid_ads',\n  'email',\n  'affiliate'\n];\n\nif (!allowedCampaignTypes.includes(campaignType)) {\n  return {\n    json: {\n      success: false,\n      valid: false,\n      error: 'Invalid campaign_type',\n      allowed_types: allowedCampaignTypes\n    }\n  };\n}\n\nif (!platform) {\n  return {\n    json: {\n      success: false,\n      valid: false,\n      error: 'platform is required'\n    }\n  };\n}\n\nif (!objective) {\n  return {\n    json: {\n      success: false,\n      valid: false,\n      error: 'objective is required'\n    }\n  };\n}\n\nif (!Number.isFinite(budget) || budget < 0) {\n  return {\n    json: {\n      success: false,\n      valid: false,\n      error: 'Invalid budget'\n    }\n  };\n}\n\nreturn {\n  json: {\n    success: true,\n    valid: true,\n    business_id: businessId,\n    campaign_type: campaignType,\n    platform,\n    objective,\n    budget\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1504,
+        -64
+      ],
+      "id": "948240df-0dbf-4a6e-a22e-2bac5be43c02",
+      "name": "Validate Input"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.campaign_type }}",
+                    "rightValue": "organic",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "db234f09-fa73-48ec-93bf-0604ccd34123"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "669ab6a9-5751-42ed-a76f-63c32a4959a3",
+                    "leftValue": "={{ $json.campaign_type }}",
+                    "rightValue": "paid_ads",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4397480e-2c63-4f33-8777-6cb17bf92840",
+                    "leftValue": "={{ $json.campaign_type }}",
+                    "rightValue": "email",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "619816e5-d9aa-45e9-88cc-13e1c2b850ab",
+                    "leftValue": "={{ $json.campaign_type }}",
+                    "rightValue": "affiliate",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1248,
+        -96
+      ],
+      "id": "f4895bd8-65db-4ed5-a0e2-ea90cbe31d62",
+      "name": "Campaign Type Router"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a structured marketing campaign plan.\n\nCampaign type: {{ $json.campaign_type }}\nPlatform: {{ $json.platform }}\nObjective: {{ $json.objective }}\nBudget: {{ $json.budget }}\n\nCreate:\n- campaign objective\n- target audience\n- campaign strategy\n- key message\n- content requirements\n- landing page requirements\n- call to action\n- budget allocation\n- tracking requirements\n- success metrics\n- approval requirements\n\nImportant rules:\n- Do not invent real customer data.\n- Do not create fake leads, fake conversions, or fake results.\n- Do not recommend spam, unauthorized bulk messaging, or platform restriction bypass.\n- For paid campaigns, treat spending as approval-required.\n- Keep the plan practical and measurable.\n\nReturn only structured planning information.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -896,
+        -64
+      ],
+      "id": "36489270-a45f-43bc-b869-ded4d0867f84",
+      "name": "Campaign Planner"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"campaign_objective\": {\n      \"type\": \"string\"\n    },\n    \"target_audience\": {\n      \"type\": \"string\"\n    },\n    \"campaign_strategy\": {\n      \"type\": \"string\"\n    },\n    \"key_message\": {\n      \"type\": \"string\"\n    },\n    \"content_requirements\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"landing_page_requirements\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"call_to_action\": {\n      \"type\": \"string\"\n    },\n    \"budget_allocation\": {\n      \"type\": \"string\"\n    },\n    \"tracking_requirements\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"success_metrics\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"approval_requirements\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"required\": [\n    \"campaign_objective\",\n    \"target_audience\",\n    \"campaign_strategy\",\n    \"key_message\",\n    \"content_requirements\",\n    \"landing_page_requirements\",\n    \"call_to_action\",\n    \"budget_allocation\",\n    \"tracking_requirements\",\n    \"success_metrics\",\n    \"approval_requirements\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -656,
+        160
+      ],
+      "id": "c0554b7a-302c-48f1-b056-cc9bef759c25",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -1024,
+        160
+      ],
+      "id": "04ab6827-c12c-4152-89ea-bde4da7dc3ad",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const plan = $json.output ?? $json;\nconst input = $('Validate Input').first().json;\n\nconst requirements = [\n  ...(plan.content_requirements ?? []),\n  ...(plan.landing_page_requirements ?? [])\n];\n\nreturn {\n  json: {\n    success: true,\n    business_id: input.business_id,\n    campaign_type: input.campaign_type,\n    platform: input.platform,\n    objective: input.objective,\n    budget: input.budget,\n\n    campaign_plan: plan,\n\n    tasks: requirements.map((task, index) => ({\n      task_id: `campaign_task_${index + 1}`,\n      task,\n      status: 'pending'\n    }))\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        -64
+      ],
+      "id": "5b8ff2ca-49d2-482d-9d9f-52af209b365a",
+      "name": "Build Campaign Tasks"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "tasks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        -64
+      ],
+      "id": "ede59eca-32f1-4a60-add5-866611c01761",
+      "name": "Split Campaign Tasks"
+    },
+    {
+      "parameters": {
+        "jsCode": "const task = $json;\nconst input = $('Validate Input').first().json;\nconst plan = $('Build Campaign Tasks').first().json.campaign_plan;\n\nconst requiresApproval =\n  input.campaign_type === 'paid_ads' ||\n  input.budget > 0;\n\nreturn {\n  json: {\n    success: true,\n    business_id: input.business_id,\n    campaign_type: input.campaign_type,\n    platform: input.platform,\n    objective: input.objective,\n    budget: input.budget,\n\n    task_id: task.task_id,\n    task: task.task,\n\n    campaign_plan: plan,\n\n    action: {\n      type: input.campaign_type === 'paid_ads'\n        ? 'paid_campaign'\n        : 'marketing_campaign',\n      status: requiresApproval ? 'approval_required' : 'planned',\n      requires_approval: requiresApproval\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -64
+      ],
+      "id": "5f137817-329c-489e-8c8f-cf0d06f32396",
+      "name": "Build Campaign Action"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "de2cf831-6529-4896-83d6-77a14f0d9cbf",
+              "leftValue": "={{ $json.action.requires_approval }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        144,
+        -64
+      ],
+      "id": "149d18e0-4e3b-4d18-8f33-660f8ca39795",
+      "name": "Campaign Safety & Approval Check"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json;\n\nreturn {\n  json: {\n    success: true,\n    business_id: input.business_id,\n    campaign_type: input.campaign_type,\n    platform: input.platform,\n    objective: input.objective,\n    budget: input.budget,\n    task_id: input.task_id,\n    task: input.task,\n    approval_required: true,\n    approval_status: 'pending',\n    action: input.action\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        144
+      ],
+      "id": "b4243ae4-2810-4e36-9c76-bd6cbbd5be08",
+      "name": "Create Approval Request"
+    },
+    {
+      "parameters": {
+        "tableId": "approvals",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "business_id",
+              "fieldValue": "={{ $json.business_id }}"
+            },
+            {
+              "fieldId": "requested_by",
+              "fieldValue": "aura_ai"
+            },
+            {
+              "fieldId": "action_type",
+              "fieldValue": "={{ $json.action.type }}"
+            },
+            {
+              "fieldId": "action_description",
+              "fieldValue": "={{ $json.task }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "=pending"
+            },
+            {
+              "fieldId": "requested_data",
+              "fieldValue": "={{ { campaign_id: $json.campaign_id, campaign_type: $json.campaign_type, platform: $json.platform, objective: $json.objective, budget: $json.budget, task_id: $json.task_id } }}"
+            },
+            {
+              "fieldId": "decision_data"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1808,
+        448
+      ],
+      "id": "771a3d01-6b98-41c4-bbde-bef91d541fa6",
+      "name": "Save Approval Request",
+      "credentials": {
+        "supabaseApi": {
+          "id": "K0qWE5Raf39JsOo2",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, business_id: $json.business_id, campaign_id: $json.campaign_id, campaign_type: $json.campaign_type, platform: $json.platform, task_id: $json.task_id, approval_required: true, approval_status: \"pending\", approval_id: $json.id } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1584,
+        448
+      ],
+      "id": "93e2873b-f971-4f55-adc0-66f5bf41278a",
+      "name": "Approval Response"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  json: {\n    ...$json,\n    campaign_status: 'planned',\n    approval_required: false,\n    ready_for_execution: true\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        -320
+      ],
+      "id": "31fcc0c5-14e7-43ff-a0c6-bd8769c6044f",
+      "name": "Ready for Campaign"
+    },
+    {
+      "parameters": {
+        "tableId": "campaigns",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "business_id",
+              "fieldValue": "={{ $json.business_id }}"
+            },
+            {
+              "fieldId": "campaign_name",
+              "fieldValue": "={{ $json.campaign_type + \" - \" + $json.platform + \" - \" + $json.task }}"
+            },
+            {
+              "fieldId": "campaign_type",
+              "fieldValue": "={{ $json.campaign_type }}"
+            },
+            {
+              "fieldId": "platform",
+              "fieldValue": "={{ $json.platform }}"
+            },
+            {
+              "fieldId": "objective",
+              "fieldValue": "={{ $json.objective }}"
+            },
+            {
+              "fieldId": "objective",
+              "fieldValue": "={{ $json.objective }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "planned"
+            },
+            {
+              "fieldId": "budget",
+              "fieldValue": "={{ $json.budget }}"
+            },
+            {
+              "fieldId": "budget_currency",
+              "fieldValue": "USD"
+            },
+            {
+              "fieldId": "approval_required",
+              "fieldValue": "={{ $json.approval_required }}"
+            },
+            {
+              "fieldId": "settings",
+              "fieldValue": "={{ { task_id: $json.task_id, task: $json.task, campaign_plan: $json.campaign_plan, action: $json.action } }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1808,
+        -480
+      ],
+      "id": "2117f045-024f-4cc1-a2ac-0eaa35060526",
+      "name": "Save Campaign",
+      "credentials": {
+        "supabaseApi": {
+          "id": "K0qWE5Raf39JsOo2",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, business_id: $json.business_id, campaign_id: $json.id, campaign_type: $json.campaign_type, platform: $json.platform, status: $json.status, approval_required: $json.approval_required, campaign_saved: true } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1584,
+        -480
+      ],
+      "id": "d3d428bd-6cae-4d3a-9fe4-b26cc4b38af7",
+      "name": "Campaign Response"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1776,
+        144
+      ],
+      "id": "124e67f8-f860-4eb1-b551-7620446438ce",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json;\nreturn { json: { ...input, campaign_status: 'planned', approval_required: true, ready_for_execution: false } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        144
+      ],
+      "id": "a2b7f4c2-6d67-4e6a-9a1d-1d5d1c8b2e71",
+      "name": "Prepare Paid Campaign Record"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c7b5c3c8-7f6e-4a4d-b8e0-1d6c6f7d9a21",
+              "leftValue": "={{ $json.approval_required }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1584,
+        -320
+      ],
+      "id": "b7e3c9a1-4c2f-4e6d-8a7b-9c0d1e2f3a45",
+      "name": "Approval Required After Save"
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $json;\nconst request = $('Create Approval Request').item.json;\nreturn { json: { ...request, campaign_id: row.id } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1344,
+        -320
+      ],
+      "id": "d4e5f6a7-b8c9-4d0e-9f1a-2b3c4d5e6f70",
+      "name": "Attach Campaign ID to Approval"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "mailmarketing756.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.9444",
+            "content-length": "186",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "103.118.77.74",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "BD",
+            "cf-ray": "a3faea090f72e87e-DAC",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "103.118.77.74, 172.68.163.136",
+            "x-forwarded-host": "mailmarketing756.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-18-74bcb4cc6-lh6w5",
+            "x-is-trusted": "yes",
+            "x-real-ip": "103.118.77.74"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "objective": "generate leads",
+            "campaign_type": "paid_ads",
+            "platform": "facebook",
+            "budget": 20,
+            "business_id": "47c0880c-60d8-44cd-9183-aaf7222f3ba9"
+          },
+          "webhookUrl": "https://mailmarketing756.app.n8n.cloud/webhook-test/aura/marketing-campaign",
+          "executionMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Campaign Type Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campaign Type Router": {
+      "main": [
+        [
+          {
+            "node": "Campaign Planner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Campaign Planner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Campaign Planner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Campaign Planner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Campaign Planner",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Campaign Planner",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campaign Planner": {
+      "main": [
+        [
+          {
+            "node": "Build Campaign Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Campaign Tasks": {
+      "main": [
+        [
+          {
+            "node": "Split Campaign Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Campaign Tasks": {
+      "main": [
+        [
+          {
+            "node": "Build Campaign Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Campaign Action": {
+      "main": [
+        [
+          {
+            "node": "Campaign Safety & Approval Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campaign Safety & Approval Check": {
+      "main": [
+        [
+          {
+            "node": "Create Approval Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ready for Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Approval Request": {
+      "main": [
+        [
+          {
+            "node": "Save Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Approval Request": {
+      "main": [
+        [
+          {
+            "node": "Approval Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ready for Campaign": {
+      "main": [
+        [
+          {
+            "node": "Save Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Campaign": {
+      "main": [
+        [
+          {
+            "node": "Approval Required After Save",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approval Required After Save": {
+      "main": [
+        [
+          {
+            "node": "Attach Campaign ID to Approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Campaign Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach Campaign ID to Approval": {
+      "main": [
+        [
+          {
+            "node": "Save Approval Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "688da93c-2831-4638-aa8a-93ff5be105c6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9e8ebd3f5603c7137050a8ca3b30a6085a1f27a04038c23c74a86070ad6e772e",
+    "aura_fix": "Campaign → Approval → Campaign ID connection",
+    "aura_fix_date": "2026-09-27"
+  },
+  "nodeGroups": [],
+  "id": "oL7799egauMj3otT",
+  "tags": []
+}
