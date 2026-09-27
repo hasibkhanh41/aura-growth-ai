@@ -9568,6 +9568,10 @@ async function runAudienceIntelligence(){
   const niche=document.getElementById('audienceNiche')?.value.trim();
   const query=document.getElementById('audienceQuery')?.value.trim();
   const intelligence_type=document.getElementById('audienceIntelligenceType')?.value||'audience';
+  const user=await getCurrentAURAUser();
+  if(!user){showToast('Please login first.');return;}
+  const businessId=await getBusinessId(user);
+  if(!businessId){showToast('Business workspace not found.');return;}
 
   if(!niche){showToast('Please enter a niche.');return;}
 
