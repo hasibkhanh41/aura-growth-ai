@@ -4762,9 +4762,62 @@ function renderAudienceIntelligence(rows){
       '</div></div>';
   };
 
-  let sourceText='';
+  let sourceHtml='';
   if(latest.source_data){
-    try{sourceText=JSON.stringify(latest.source_data,null,2);}catch(_){sourceText=String(latest.source_data);}
+    try{
+      const sourceData=latest.source_data || {};
+      const searchResult=sourceData.search_result || {};
+      const queryText=searchResult.query || '';
+      const sourceRows=Array.isArray(searchResult.results)?searchResult.results:[];
+      
+      const sourceCards=sourceRows.slice(0,6).map((item,index)=>{
+        const title=String(item.title||item.name||'Research source');
+        const url=String(item.url||'');
+        const score=Number(item.score);
+        const content=String(item.content||item.raw_content||'').replace(/\\s+/g,' ').trim();
+        let host='';
+        let safeUrl='';
+        try{
+          const parsed=new URL(url);
+          if(parsed.protocol==='http:'||parsed.protocol==='https:'){
+            host=parsed.hostname.replace(/^www\\./,'');
+            safeUrl=parsed.href;
+          }
+        }catch(_){}
+        const excerpt=content.length>260?content.slice(0,260).trim()+'…':content;
+        
+        return '<div style="padding:14px 0;border-bottom:1px solid #252a48;">'+
+          '<div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;">'+
+            '<div style="min-width:0;">'+
+              '<div style="font-size:13px;font-weight:700;color:#f4f6ff;line-height:1.45;">'+
+                (index+1)+'. '+escapeHtml(title)+
+              '</div>'+
+              (host?'<div style="font-size:10px;color:#8e93b5;margin-top:4px;">'+escapeHtml(host)+'</div>':'')+
+            '</div>'+
+            (Number.isFinite(score)?'<div style="font-size:10px;color:#b7a8ff;white-space:nowrap;">Relevance '+score.toFixed(2)+'</div>':'')+
+          '</div>'+
+          (excerpt?'<div style="font-size:11px;line-height:1.65;color:#aeb4ce;margin-top:8px;">'+escapeHtml(excerpt)+'</div>':'')+
+          (safeUrl?'<a href="'+escapeHtml(safeUrl)+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;font-size:10px;color:#c75cff;text-decoration:none;">View source ↗</a>':'')+
+        '</div>';
+      }).join('');
+      
+      sourceHtml=
+        '<div class="funnel-result-section">'+
+          '<span class="funnel-result-label">RESEARCH SOURCES</span>'+
+          '<div class="funnel-result-body">'+
+            (queryText?
+              '<div style="margin-bottom:14px;padding:11px 13px;background:#10142a;border:1px solid #252a48;border-radius:8px;">'+
+                '<div style="font-size:9px;font-weight:800;letter-spacing:1px;color:#8e93b5;">RESEARCH QUERY</div>'+
+                '<div style="font-size:12px;line-height:1.55;color:#e8eaff;margin-top:5px;">'+escapeHtml(queryText)+'</div>'+
+              '</div>':'')+
+            (sourceRows.length?
+              sourceCards:
+              '<div style="font-size:11px;color:#8e93b5;">No source results were returned.</div>')+
+          '</div>'+
+        '</div>';
+    }catch(_){
+      sourceHtml='';
+    }
   }
 
   result.innerHTML=
@@ -4777,7 +4830,7 @@ function renderAudienceIntelligence(rows){
     list('Customer Problems',painPoints)+
     list('Needs / Qualification Factors',needs)+
     list('Preferred Channels',channels)+
-    (sourceText?'<div class="funnel-result-section"><span class="funnel-result-label">Source Data</span><div class="funnel-result-body">'+escapeHtml(sourceText)+'</div></div>':'');
+    sourceHtml;
 }
 
 async function runAudienceIntelligence(){
