@@ -41,11 +41,11 @@
 
     const base=window.location.href.split('?')[0];
     const variants=[
-      {name:'Focused Guide',desc:'Hero + focused content',icon:'✦'},
-      {name:'Action Plan',desc:'Step-by-step structure',icon:'→'},
-      {name:'Resource Cards',desc:'Card-based offer layout',icon:'▦'},
-      {name:'Simple Offer',desc:'Clean minimal layout',icon:'◌'},
-      {name:'Campaign Spotlight',desc:'High-impact campaign layout',icon:'◆'}
+      {name:'Sales / Guide',desc:'Hero + benefits + offer context + CTA',icon:'✦'},
+      {name:'Step-by-Step',desc:'Progressive action flow with numbered steps',icon:'→'},
+      {name:'Resource / FAQ',desc:'Card-based resources + expandable FAQ',icon:'▦'},
+      {name:'Minimal Focus',desc:'Ultra-clean headline + essential information',icon:'◌'},
+      {name:'Editorial Story',desc:'Long-form story + table of contents + FAQ',icon:'◆'}
     ];
 
     const title=cleanText(p.headline||p.page_name||'Landing Page');
@@ -66,7 +66,7 @@
 
     box.innerHTML='<div class="funnel-result-head"><div><div class="funnel-result-title">'+esc(title)+'</div><div class="funnel-result-meta">5 dynamic landing-page concepts generated · choose the one you want to use</div></div><div style="display:flex;gap:8px;align-items:center"><span class="funnel-result-status">5 Concepts</span>'+(publicLink?'<a href="'+esc(publicLink)+'" target="_blank" rel="noopener noreferrer" class="funnel-copy-button" style="text-decoration:none">Open selected ↗</a>':'')+'</div></div>'+
       '<div class="aura-live-preview">'+
-      '<div class="aura-variant-bar"><div class="aura-variant-title">Choose your landing-page design</div><div class="aura-variant-help">AURA keeps the same campaign goal and content, but gives you 5 different presentation styles.</div><div class="aura-variant-grid">'+variantCards+'</div></div>'+
+      '<div class="aura-variant-bar"><div class="aura-variant-title">Choose your landing-page design</div><div class="aura-variant-help">AURA turns the same campaign brief into 5 different page structures — not just different colors.</div><div class="aura-variant-grid">'+variantCards+'</div></div>'+
       '<div class="aura-live-hero"><div class="aura-live-badge">AURA CONCEPT '+active+'</div><h2>'+esc(title)+'</h2>'+
       (sub?'<p>'+esc(sub)+'</p>':'')+'<div class="aura-live-form"><input type="email" placeholder="Email address" disabled><button disabled>'+esc(cta)+'</button></div>'+
       '<div class="aura-live-note">Concept '+active+' selected · open it to view the full live page.</div></div>'+
