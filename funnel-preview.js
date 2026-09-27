@@ -22,7 +22,7 @@
   window.renderAURALiveFunnelPreview=async function(data,businessId){
     const box=document.getElementById('funnelResult');if(!box)return;
     const {data:rows,error}=await supabaseClient.from('landing_pages')
-      .select('page_type,page_name,headline,subheadline,body_content,call_to_action,status,created_at')
+      .select('page_type,page_name,headline,subheadline,body_content,call_to_action,status,public_slug,created_at')
       .eq('business_id',businessId).eq('page_type',data?.page_type||'landing_page')
       .order('created_at',{ascending:false}).limit(1);
     if(error)throw error;if(!rows?.length)return;
@@ -31,11 +31,12 @@
     const sub=cleanText(p.subheadline||'');
     const body=cleanText(p.body_content||'');
     const cta=cleanText(p.call_to_action||'Get Started');
-    box.innerHTML='<div class="funnel-result-head"><div><div class="funnel-result-title">'+esc(title)+'</div><div class="funnel-result-meta">landing page · Latest generated preview</div></div><span class="funnel-result-status">Preview</span></div>'+
+    const publicLink=p.public_slug?new URL(window.location.href.split('?')[0]+'?lp='+encodeURIComponent(p.public_slug)).href:'';
+    box.innerHTML='<div class="funnel-result-head"><div><div class="funnel-result-title">'+esc(title)+'</div><div class="funnel-result-meta">landing page · Latest generated preview</div></div><div style="display:flex;gap:8px;align-items:center"><span class="funnel-result-status">Preview</span>'+(publicLink?'<a href="'+esc(publicLink)+'" target="_blank" rel="noopener noreferrer" class="funnel-copy-button" style="text-decoration:none">Open live page ↗</a>':'')+'</div></div>'+
       '<div class="aura-live-preview"><div class="aura-live-hero"><div class="aura-live-badge">AURA GENERATED</div><h2>'+esc(title)+'</h2>'+
-      (sub?'<p>'+esc(sub)+'</p>':'')+'<div class="aura-live-form"><input type="email" placeholder="Enter your email address" disabled><button disabled>Get Started</button></div>'+
-      '<div class="aura-live-note">Preview only — lead capture is not connected yet.</div></div>'+
+      (sub?'<p>'+esc(sub)+'</p>':'')+'<div class="aura-live-form"><input type="email" placeholder="Enter your email address" disabled><button disabled>'+esc(cta)+'</button></div>'+
+      '<div class="aura-live-note">'+(publicLink?'This landing page has a public link you can share.':'Public link is being prepared.')+'</div></div>'+
       '<div class="aura-live-sections"><section class="aura-live-section"><div class="aura-live-section-title">Page Content</div><div class="aura-live-section-body">'+esc(body)+'</div>'+
-      '<button class="aura-live-cta" disabled>'+esc(cta)+'</button></section></div></div>';
+      '<div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">'+(publicLink?'<input value="'+esc(publicLink)+'" readonly style="flex:1;min-width:240px;height:42px;padding:0 12px;border:1px solid #292d51;border-radius:10px;background:#080b1b;color:#aeb4ce"><a href="'+esc(publicLink)+'" target="_blank" rel="noopener noreferrer" class="aura-live-cta" style="text-decoration:none;display:inline-flex;align-items:center">Use this link ↗</a>':'')+'</div></section></div></div>';
   };
 })();
