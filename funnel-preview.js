@@ -1,5 +1,6 @@
 (function(){
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const cleanText=v=>String(v??'').replace(/<\\/?(h1|h2|h3|h4|p|strong|em|br|ul|ol|li)[^>]*>/gi,' ').replace(/<[^>]*>/g,'').replace(/\\s+/g,' ').trim();
   const css=`
     .aura-live-preview{margin-top:18px;border:1px solid #292d51;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#0d1023,#080a18);box-shadow:0 20px 60px rgba(0,0,0,.28)}
     .aura-live-hero{padding:42px 34px 34px;text-align:center;background:radial-gradient(circle at 50% 0%,rgba(169,0,255,.18),transparent 55%)}
@@ -23,15 +24,18 @@
     const {data:rows,error}=await supabaseClient.from('landing_pages')
       .select('page_type,page_name,headline,subheadline,body_content,call_to_action,status,created_at')
       .eq('business_id',businessId).eq('page_type',data?.page_type||'landing_page')
-      .order('created_at',{ascending:true});
+      .order('created_at',{ascending:false}).limit(1);
     if(error)throw error;if(!rows?.length)return;
-    const first=rows[0],title=first.headline||first.page_name||'Landing Page',sub=first.subheadline||'';
-    const sections=rows.map((p,i)=>'<section class="aura-live-section"><div class="aura-live-section-title">'+esc(p.page_name||p.headline||('Section '+(i+1)))+'</div>'+
-      (p.body_content?'<div class="aura-live-section-body">'+esc(p.body_content)+'</div>':'')+
-      (p.call_to_action?'<button class="aura-live-cta" disabled>'+esc(p.call_to_action)+'</button>':'')+'</section>').join('');
-    box.innerHTML='<div class="funnel-result-head"><div><div class="funnel-result-title">'+esc(title)+'</div><div class="funnel-result-meta">landing page · Live preview</div></div><span class="funnel-result-status">Preview</span></div>'+
+    const p=rows[0];
+    const title=cleanText(p.headline||p.page_name||'Landing Page');
+    const sub=cleanText(p.subheadline||'');
+    const body=cleanText(p.body_content||'');
+    const cta=cleanText(p.call_to_action||'Get Started');
+    box.innerHTML='<div class="funnel-result-head"><div><div class="funnel-result-title">'+esc(title)+'</div><div class="funnel-result-meta">landing page · Latest generated preview</div></div><span class="funnel-result-status">Preview</span></div>'+
       '<div class="aura-live-preview"><div class="aura-live-hero"><div class="aura-live-badge">AURA GENERATED</div><h2>'+esc(title)+'</h2>'+
       (sub?'<p>'+esc(sub)+'</p>':'')+'<div class="aura-live-form"><input type="email" placeholder="Enter your email address" disabled><button disabled>Get Started</button></div>'+
-      '<div class="aura-live-note">Preview only — lead capture is not connected yet.</div></div><div class="aura-live-sections">'+sections+'</div></div>';
+      '<div class="aura-live-note">Preview only — lead capture is not connected yet.</div></div>'+
+      '<div class="aura-live-sections"><section class="aura-live-section"><div class="aura-live-section-title">Page Content</div><div class="aura-live-section-body">'+esc(body)+'</div>'+
+      '<button class="aura-live-cta" disabled>'+esc(cta)+'</button></section></div></div>';
   };
 })();
