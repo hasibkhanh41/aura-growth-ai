@@ -4678,28 +4678,55 @@ async function renderPublicLandingPageFromUrl(){
   if(!slug) return false;
   authPage.classList.add('hidden');
   app.classList.add('hidden');
+
   let host=document.getElementById('publicLandingPage');
-  if(!host){host=document.createElement('div');host.id='publicLandingPage';document.body.appendChild(host);}
-  host.innerHTML='<div class="aura-public-loading">Loading your landing page…</div>';
+  if(!host){
+    host=document.createElement('div');
+    host.id='publicLandingPage';
+    document.body.appendChild(host);
+  }
+  host.innerHTML='<div class="aura-public-loading">Building your AURA experience…</div>';
+
   try{
     const {data,error}=await supabaseClient.from('landing_pages')
-      .select('headline,subheadline,body_content,call_to_action,page_type,status,public_slug,created_at')
-      .eq('public_slug',slug).eq('status','generated').maybeSingle();
+      .select('headline,subheadline,body_content,call_to_action,page_type,status,public_slug,created_at,page_data')
+      .eq('public_slug',slug)
+      .eq('status','generated')
+      .maybeSingle();
+
     if(error) throw error;
+
     if(!data){
       host.innerHTML='<div class="aura-public-error"><div><span>404</span><h1>Landing page not found</h1><p>This public link may be invalid or no longer available.</p></div></div>';
       return true;
     }
 
     const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-    const clean=v=>String(v??'').replace(/<[^>]*>/g,' ').replace(/^\s*#{1,6}\s*/,'').replace(/\*\*/g,'').replace(/\s+/g,' ').trim();
+    const clean=v=>String(v??'')
+      .replace(/<[^>]*>/g,' ')
+      .replace(/^\s*#{1,6}\s*/,'')
+      .replace(/\*\*/g,'')
+      .replace(/\[\s*(visual representation|form input field|headline|subheadline|call to action|cta)[^\]]*\]\s*:?/gi,'')
+      .replace(/^\s*(headline|subheadline|body|visual representation|form input field|cta|call to action)\s*:\s*/i,'')
+      .replace(/\s+/g,' ')
+      .trim();
+
     const title=clean(data.headline||'A Smarter Way Forward');
     const sub=clean(data.subheadline||'');
     const bodyRaw=String(data.body_content??'').replace(/<[^>]*>/g,'').trim();
     const body=clean(bodyRaw);
     const cta=clean(data.call_to_action||'Get Started');
 
+    const meta=data.page_data||{};
+    const offer=clean(meta.offer||'');
+    const audience=clean(meta.audience||'');
+    const goal=clean(meta.goal||'');
+    const platform=clean(meta.platform||'');
+    const pageType=clean(data.page_type||'landing page').replace(/[_-]+/g,' ');
+    const context=(offer+' '+audience+' '+goal+' '+pageType+' '+body).toLowerCase();
+
     const hash=[...String(slug)].reduce((n,ch)=>((n*31)+ch.charCodeAt(0))>>>0,7);
+
     const themes=[
       {name:'aurora',accent:'#a900ff',accent2:'#5d2cff',soft:'rgba(169,0,255,.18)',orb:'rgba(90,40,255,.14)'},
       {name:'ocean',accent:'#20d3ee',accent2:'#2563eb',soft:'rgba(32,211,238,.16)',orb:'rgba(37,99,235,.14)'},
@@ -4707,49 +4734,125 @@ async function renderPublicLandingPageFromUrl(){
       {name:'sunrise',accent:'#f59e0b',accent2:'#ef4444',soft:'rgba(245,158,11,.14)',orb:'rgba(239,68,68,.12)'},
       {name:'violet',accent:'#8b5cf6',accent2:'#ec4899',soft:'rgba(139,92,246,.17)',orb:'rgba(236,72,153,.12)'}
     ];
+
+    const layouts=[
+      {name:'split',label:'Focused guide',icon:'✦'},
+      {name:'steps',label:'Action plan',icon:'→'},
+      {name:'cards',label:'Resource kit',icon:'▦'},
+      {name:'minimal',label:'Simple offer',icon:'◌'},
+      {name:'spotlight',label:'Campaign spotlight',icon:'◆'},
+      {name:'editorial',label:'Expert guide',icon:'✎'}
+    ];
+
     const theme=themes[hash%themes.length];
+    const layout=layouts[Math.floor(hash/themes.length)%layouts.length];
 
-    const sentences=body.split(/(?<=[.!?])\s+/).filter(Boolean);
-    const benefitLines=bodyRaw.split(/\n+/).map(x=>clean(x)).filter(x=>x && !/^(\[.*\]|\*.*\*)$/.test(x));
-    const benefits=(benefitLines.length>=3?benefitLines:sentences).slice(0,4);
-    const pageType=clean(data.page_type||'landing page').replace(/_/g,' ');
-    const audienceHint=pageType.toLowerCase().includes('survey')?'For adults who choose to participate in research opportunities.':'Built around the audience, offer and goal defined for this campaign.';
-    const contentHtml=benefits.map((x,i)=>'<div class="aura-benefit"><div class="aura-benefit-num">0'+(i+1)+'</div><div><h3>'+esc(x.split(':')[0].slice(0,70))+'</h3><p>'+esc(x)+'</p></div></div>').join('');
+    const rawLines=bodyRaw
+      .split(/\n+/)
+      .map(x=>clean(x))
+      .filter(Boolean);
 
-    const css='<style id="aura-public-style">'+
-      ':root{--a1:'+theme.accent+';--a2:'+theme.accent2+';--soft:'+theme.soft+';--orb:'+theme.orb+'}'+
-      '*{box-sizing:border-box}body{margin:0}'+
-      '.aura-public{min-height:100vh;color:#f7f7fb;background:#070816;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}'+
-      '.aura-public:before{content:"";position:fixed;inset:-20%;background:radial-gradient(circle at 20% 10%,var(--soft),transparent 28%),radial-gradient(circle at 85% 20%,var(--orb),transparent 26%);pointer-events:none}'+
-      '.aura-nav{position:relative;z-index:2;max-width:1160px;margin:auto;padding:24px 24px 10px;display:flex;justify-content:space-between;align-items:center}'+
-      '.aura-brand{display:flex;gap:10px;align-items:center;font-weight:900;letter-spacing:-.4px}.aura-brand-mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--a1),var(--a2));box-shadow:0 10px 30px var(--soft);font-size:16px}.aura-brand small{display:block;color:#777d99;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}'+
-      '.aura-nav-pill{padding:7px 11px;border:1px solid #262a46;border-radius:999px;color:#9da4bf;font-size:10px}'+
-      '.aura-wrap{position:relative;z-index:1;max-width:1160px;margin:auto;padding:46px 24px 70px}'+
-      '.aura-hero{text-align:center;max-width:940px;margin:0 auto}.aura-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid color-mix(in srgb,var(--a1) 35%,#252943);border-radius:999px;background:rgba(255,255,255,.025);color:var(--a1);font-size:10px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase}.aura-dot{width:6px;height:6px;border-radius:50%;background:var(--a1);box-shadow:0 0 14px var(--a1)}'+
-      '.aura-hero h1{margin:20px auto 16px;font-size:clamp(40px,6.5vw,76px);line-height:1.01;letter-spacing:-2.8px;max-width:940px}.aura-hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}.aura-hero p{max-width:760px;margin:0 auto;color:#aeb4cd;font-size:17px;line-height:1.75}'+
-      '.aura-actions{margin-top:28px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.aura-btn{border:0;border-radius:12px;padding:14px 20px;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2));box-shadow:0 15px 40px var(--soft);cursor:pointer}.aura-btn.secondary{background:rgba(255,255,255,.035);border:1px solid #292d49;box-shadow:none;color:#c5c9da}'+
-      '.aura-trust{margin:42px auto 0;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.aura-trust span{padding:9px 12px;border:1px solid #23273f;border-radius:10px;background:rgba(255,255,255,.025);color:#858ba5;font-size:10px}'+
-      '.aura-panel{margin:55px auto 0;max-width:1000px;border:1px solid #272b48;border-radius:24px;background:linear-gradient(145deg,rgba(17,20,40,.92),rgba(9,11,25,.92));box-shadow:0 30px 100px rgba(0,0,0,.35);overflow:hidden}.aura-panel-head{padding:18px 22px;border-bottom:1px solid #232740;display:flex;justify-content:space-between;gap:10px;align-items:center}.aura-kicker{font-size:10px;font-weight:900;letter-spacing:1.2px;color:var(--a1);text-transform:uppercase}.aura-live{font-size:9px;color:#86efac;border:1px solid rgba(134,239,172,.22);border-radius:999px;padding:5px 8px}.aura-benefits{display:grid;grid-template-columns:1fr 1fr}.aura-benefit{padding:28px;display:flex;gap:16px;border-bottom:1px solid #20243d}.aura-benefit:nth-child(odd){border-right:1px solid #20243d}.aura-benefit-num{width:34px;height:34px;flex:0 0 34px;border-radius:10px;display:grid;place-items:center;background:var(--soft);color:var(--a1);font-size:9px;font-weight:900}.aura-benefit h3{margin:0 0 6px;font-size:14px}.aura-benefit p{margin:0;color:#9198b3;font-size:12px;line-height:1.65}'+
-      '.aura-cta{margin:22px;padding:28px;border:1px solid color-mix(in srgb,var(--a1) 28%,#252943);border-radius:18px;background:linear-gradient(135deg,var(--soft),rgba(255,255,255,.025));display:flex;justify-content:space-between;align-items:center;gap:20px}.aura-cta h2{margin:0 0 7px;font-size:21px}.aura-cta p{margin:0;color:#9299b4;font-size:12px;line-height:1.6}.aura-note{padding:0 24px 26px;text-align:center;color:#656b84;font-size:10px;line-height:1.6}.aura-footer{position:relative;z-index:1;max-width:1160px;margin:auto;padding:20px 24px 35px;text-align:center;color:#545a73;font-size:10px}.aura-public-loading,.aura-public-error{min-height:100vh;display:grid;place-items:center;background:#070816;color:#9da4bf}.aura-public-error>div{text-align:center;padding:40px;border:1px solid #272b48;border-radius:22px;background:#0d1023}.aura-public-error span{color:#777d98;font-weight:900}.aura-public-error h1{color:#fff}.aura-public-error p{color:#858ba5}'+
-      '@media(max-width:760px){.aura-wrap{padding:34px 16px 45px}.aura-nav{padding:18px 16px}.aura-hero h1{font-size:42px;letter-spacing:-1.7px}.aura-hero p{font-size:14px}.aura-benefits{grid-template-columns:1fr}.aura-benefit:nth-child(odd){border-right:0}.aura-cta{margin:16px;flex-direction:column;align-items:flex-start}.aura-btn{width:100%}}'+
-      '</style>';
+    const sentenceParts=body
+      .split(/(?<=[.!?])\s+/)
+      .map(x=>clean(x))
+      .filter(Boolean);
+
+    const sourceLines=(rawLines.length?rawLines:sentenceParts);
+
+    const bannedLabel=/^(headline|subheadline|body|visual representation|form input field|cta|call to action)$/i;
+    const benefits=sourceLines
+      .filter(x=>!bannedLabel.test(x.replace(/[:.].*$/,'').trim()))
+      .filter(x=>x.length>18)
+      .filter((x,i,a)=>a.indexOf(x)===i)
+      .slice(0,6);
+
+    const fallbackBenefits=[
+      'A clear overview of what this campaign offers and why it matters.',
+      'Practical information designed around the stated audience and campaign goal.',
+      'A focused next step so visitors know exactly what to do.',
+      'A concise experience that keeps the offer, audience and action aligned.'
+    ];
+
+    const items=(benefits.length?benefits:fallbackBenefits).slice(0,6);
+
+    const keywords=[
+      ['survey','Research participation'],
+      ['research','Research participation'],
+      ['checklist','Free resource'],
+      ['guide','Practical guide'],
+      ['template','Ready-to-use template'],
+      ['webinar','Live learning'],
+      ['course','Learning experience'],
+      ['newsletter','Weekly insights'],
+      ['productivity','Productivity'],
+      ['finance','Financial planning'],
+      ['fitness','Healthy habits'],
+      ['software','Product walkthrough']
+    ];
+
+    let contextLabel='Campaign experience';
+    for(const [key,label] of keywords){
+      if(context.includes(key)){contextLabel=label;break;}
+    }
+
+    const audienceLine=audience
+      ? 'Designed for '+audience+'.'
+      : 'Built around the audience, offer and goal defined for this campaign.';
+
+    const goalLine=goal
+      ? goal.charAt(0).toUpperCase()+goal.slice(1).replace(/[.!?]+$/,'')+'.'
+      : 'Explore the offer and continue when it matches what you are looking for.';
 
     const safeTitle=esc(title).replace(/\s+/g,' ');
-    const words=safeTitle.split(' ');
-    const heroTitle=words.length>5?esc(words.slice(0,-2).join(' '))+' <em>'+esc(words.slice(-2).join(' '))+'</em>':esc(title);
+    const titleWords=safeTitle.split(' ');
+    const heroTitle=titleWords.length>6
+      ? esc(titleWords.slice(0,-3).join(' '))+' <em>'+esc(titleWords.slice(-3).join(' '))+'</em>'
+      : esc(title);
+
+    const renderItems=items.map((x,i)=>{
+      const cleanItem=clean(x);
+      const words=cleanItem.split(/\s+/);
+      const shortTitle=words.length>8 ? words.slice(0,8).join(' ')+'…' : cleanItem;
+      return '<article class="aura-item"><div class="aura-item-num">'+String(i+1).padStart(2,'0')+'</div><div><h3>'+esc(shortTitle)+'</h3><p>'+esc(cleanItem)+'</p></div></article>';
+    }).join('');
+
+    const css='<style id="aura-public-style">'+
+      ':root{--a1:'+theme.accent+';--a2:'+theme.accent2+';--soft:'+theme.soft+';--orb:'+theme.orb}'+
+      '*{box-sizing:border-box}body{margin:0}'+
+      '.aura-public{min-height:100vh;color:#f7f7fb;background:#070816;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}'+
+      '.aura-public:before{content:"";position:fixed;inset:-20%;background:radial-gradient(circle at 12% 8%,var(--soft),transparent 25%),radial-gradient(circle at 88% 18%,var(--orb),transparent 24%);pointer-events:none}'+
+      '.aura-nav{position:relative;z-index:2;max-width:1180px;margin:auto;padding:24px;display:flex;justify-content:space-between;align-items:center}.aura-brand{display:flex;gap:10px;align-items:center;font-weight:900}.aura-brand-mark{width:35px;height:35px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--a1),var(--a2));box-shadow:0 12px 32px var(--soft)}.aura-brand small{display:block;color:#777d99;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}.aura-nav-pill{padding:7px 11px;border:1px solid #262a46;border-radius:999px;color:#9da4bf;font-size:10px;text-transform:capitalize}'+
+      '.aura-wrap{position:relative;z-index:1;max-width:1180px;margin:auto;padding:38px 24px 70px}.aura-hero{text-align:center;max-width:960px;margin:0 auto}.aura-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid color-mix(in srgb,var(--a1) 35%,#252943);border-radius:999px;background:rgba(255,255,255,.025);color:var(--a1);font-size:10px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase}.aura-dot{width:6px;height:6px;border-radius:50%;background:var(--a1);box-shadow:0 0 14px var(--a1)}'+
+      '.aura-hero h1{margin:20px auto 16px;font-size:clamp(42px,7vw,82px);line-height:1;letter-spacing:-3.2px;max-width:980px}.aura-hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}.aura-hero p{max-width:780px;margin:0 auto;color:#aeb4cd;font-size:17px;line-height:1.75}.aura-actions{margin-top:28px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.aura-btn{border:0;border-radius:12px;padding:14px 20px;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2));box-shadow:0 15px 40px var(--soft);cursor:pointer}.aura-btn.secondary{background:rgba(255,255,255,.035);border:1px solid #292d49;box-shadow:none;color:#c5c9da}.aura-context{margin:38px auto 0;max-width:900px;display:flex;justify-content:center;gap:9px;flex-wrap:wrap}.aura-context span{padding:8px 11px;border:1px solid #23273f;border-radius:999px;background:rgba(255,255,255,.025);color:#858ba5;font-size:10px}'+
+      '.aura-stage{margin:55px auto 0;max-width:1050px;border:1px solid #272b48;border-radius:28px;background:linear-gradient(145deg,rgba(17,20,40,.94),rgba(9,11,25,.94));box-shadow:0 30px 100px rgba(0,0,0,.38);overflow:hidden}.aura-stage-head{padding:20px 24px;border-bottom:1px solid #232740;display:flex;justify-content:space-between;align-items:center;gap:14px}.aura-kicker{font-size:10px;font-weight:900;letter-spacing:1.2px;color:var(--a1);text-transform:uppercase}.aura-stage-sub{color:#747b96;font-size:10px;margin-top:5px}.aura-live{font-size:9px;color:#86efac;border:1px solid rgba(134,239,172,.22);border-radius:999px;padding:5px 8px}'+
+      '.aura-grid{display:grid;grid-template-columns:1fr 1fr}.aura-item{padding:30px;display:flex;gap:16px;border-bottom:1px solid #20243d}.aura-item:nth-child(odd){border-right:1px solid #20243d}.aura-item-num{width:36px;height:36px;flex:0 0 36px;border-radius:11px;display:grid;place-items:center;background:var(--soft);color:var(--a1);font-size:9px;font-weight:900}.aura-item h3{margin:0 0 7px;font-size:14px;line-height:1.35}.aura-item p{margin:0;color:#9198b3;font-size:12px;line-height:1.7}'+
+      '.aura-layout-split{display:grid;grid-template-columns:1.05fr .95fr;gap:0}.aura-layout-split .aura-grid{grid-template-columns:1fr}.aura-side{padding:34px;background:linear-gradient(160deg,var(--soft),rgba(255,255,255,.015));border-left:1px solid #20243d}.aura-side h2{font-size:28px;line-height:1.1;margin:0 0 12px}.aura-side p{color:#9ba2bc;font-size:13px;line-height:1.75}.aura-mini{margin-top:20px;padding:14px;border:1px solid #303552;border-radius:14px;background:rgba(255,255,255,.025);color:#c7cbda;font-size:11px;line-height:1.6}'+
+      '.aura-layout-steps .aura-item{min-height:145px}.aura-layout-steps .aura-item-num{border-radius:50%}.aura-layout-cards .aura-item{border:0;margin:12px;border-radius:18px;background:rgba(255,255,255,.025);min-height:150px}.aura-layout-cards .aura-item:nth-child(odd){border-right:0}.aura-layout-minimal{padding:12px}.aura-layout-minimal .aura-item{border:0;border-bottom:1px solid #20243d;padding:24px 18px}.aura-layout-spotlight{padding:22px}.aura-layout-spotlight .aura-item{margin:8px;border:1px solid #292d49;border-radius:18px;background:rgba(255,255,255,.02)}.aura-layout-editorial{padding:12px 28px}.aura-layout-editorial .aura-item{grid-column:1/-1;border-right:0}.aura-layout-editorial .aura-item-num{background:transparent;border:1px solid #313650}'+
+      '.aura-cta{margin:22px;padding:30px;border:1px solid color-mix(in srgb,var(--a1) 28%,#252943);border-radius:20px;background:linear-gradient(135deg,var(--soft),rgba(255,255,255,.025));display:flex;justify-content:space-between;align-items:center;gap:20px}.aura-cta h2{margin:0 0 7px;font-size:22px}.aura-cta p{margin:0;color:#9299b4;font-size:12px;line-height:1.6}.aura-note{padding:0 26px 28px;text-align:center;color:#656b84;font-size:10px;line-height:1.6}.aura-footer{position:relative;z-index:1;max-width:1180px;margin:auto;padding:20px 24px 35px;text-align:center;color:#545a73;font-size:10px}.aura-public-loading,.aura-public-error{min-height:100vh;display:grid;place-items:center;background:#070816;color:#9da4bf}.aura-public-error>div{text-align:center;padding:40px;border:1px solid #272b48;border-radius:22px;background:#0d1023}.aura-public-error span{color:#777d98;font-weight:900}.aura-public-error h1{color:#fff}.aura-public-error p{color:#858ba5}'+
+      '@media(max-width:760px){.aura-wrap{padding:30px 14px 45px}.aura-nav{padding:18px 14px}.aura-hero h1{font-size:43px;letter-spacing:-1.8px}.aura-hero p{font-size:14px}.aura-grid,.aura-layout-split{grid-template-columns:1fr}.aura-item:nth-child(odd){border-right:0}.aura-side{border-left:0;border-top:1px solid #20243d}.aura-cta{margin:14px;flex-direction:column;align-items:flex-start}.aura-btn{width:100%}}'+
+      '</style>';
+
+    const stageClass='aura-layout-'+layout.name;
+    const sideTitle=offer||contextLabel;
+    const sideCopy=goalLine;
 
     host.innerHTML=css+
       '<main class="aura-public">'+
-      '<nav class="aura-nav"><div class="aura-brand"><div class="aura-brand-mark">A</div><div>AURA<small>Growth AI</small></div></div><div class="aura-nav-pill">'+esc(pageType)+'</div></nav>'+
+      '<nav class="aura-nav"><div class="aura-brand"><div class="aura-brand-mark">A</div><div>AURA<small>Growth AI</small></div></div><div class="aura-nav-pill">'+esc(layout.label)+'</div></nav>'+
       '<div class="aura-wrap">'+
-      '<header class="aura-hero"><div class="aura-badge"><i class="aura-dot"></i>AURA generated experience</div><h1>'+heroTitle+'</h1>'+(sub?'<p>'+esc(sub)+'</p>':'<p>'+esc(audienceHint)+'</p>')+
-      '<div class="aura-actions"><button class="aura-btn" type="button" onclick="document.getElementById(&quot;aura-cta&quot;).scrollIntoView({behavior:&quot;smooth&quot;})">'+esc(cta)+'</button><button class="aura-btn secondary" type="button" onclick="document.getElementById(&quot;aura-details&quot;).scrollIntoView({behavior:&quot;smooth&quot;})">Explore details</button></div>'+
-      '<div class="aura-trust"><span>Clear information</span><span>Voluntary participation</span><span>Built for this campaign</span></div></header>'+
-      '<section id="aura-details" class="aura-panel"><div class="aura-panel-head"><div><div class="aura-kicker">What this page offers</div><div style="color:#747b96;font-size:10px;margin-top:4px">Generated from the campaign brief</div></div><span class="aura-live">LIVE PAGE</span></div>'+
-      '<div class="aura-benefits">'+contentHtml+'</div>'+
-      '<div id="aura-cta" class="aura-cta"><div><h2>'+esc(cta)+'</h2><p>Review the information above and continue only if it matches what you are looking for.</p></div><button class="aura-btn" type="button" onclick="window.scrollTo({top:0,behavior:&quot;smooth&quot;})">'+esc(cta)+'</button></div>'+
-      '<div class="aura-note">Participation is voluntary. Use only with an approved offer, audience and traffic source. Any required eligibility, privacy and opt-out terms should be shown before submission.</div></section>'+
-      '</div><footer class="aura-footer">Generated by AURA Growth AI · Dynamic campaign landing page</footer></main>';
+      '<header class="aura-hero"><div class="aura-badge"><i class="aura-dot"></i>'+esc(contextLabel)+'</div><h1>'+heroTitle+'</h1><p>'+esc(sub||audienceLine)+'</p>'+
+      '<div class="aura-actions"><button class="aura-btn" type="button" onclick="document.getElementById(&quot;aura-cta&quot;).scrollIntoView({behavior:&quot;smooth&quot;})">'+esc(cta)+'</button><button class="aura-btn secondary" type="button" onclick="document.getElementById(&quot;aura-details&quot;).scrollIntoView({behavior:&quot;smooth&quot;})">See what’s included</button></div>'+
+      '<div class="aura-context"><span>'+esc(contextLabel)+'</span><span>Audience-aligned</span><span>Goal-focused</span></div></header>'+
+      '<section id="aura-details" class="aura-stage"><div class="aura-stage-head"><div><div class="aura-kicker">'+esc(layout.icon)+' '+esc(layout.label)+'</div><div class="aura-stage-sub">Generated from this campaign brief</div></div><span class="aura-live">LIVE EXPERIENCE</span></div>'+
+      '<div class="'+stageClass+(layout.name==='split'?' aura-layout-split':'')+'">'+
+      (layout.name==='split'
+        ? '<div class="aura-grid">'+renderItems+'</div><aside class="aura-side"><h2>'+esc(sideTitle)+'</h2><p>'+esc(sideCopy)+'</p><div class="aura-mini">'+esc(platform?('Channel: '+platform):'AURA adapts this experience to the campaign objective.')+'</div></aside>'
+        : '<div class="aura-grid">'+renderItems+'</div>')+
+      '</div>'+
+      '<div id="aura-cta" class="aura-cta"><div><h2>'+esc(cta)+'</h2><p>'+esc(goalLine)+'</p></div><button class="aura-btn" type="button" onclick="window.scrollTo({top:0,behavior:&quot;smooth&quot;})">'+esc(cta)+'</button></div>'+
+      '<div class="aura-note">Use only with an approved offer, eligible audience and permitted traffic source. Show required privacy, eligibility and opt-out information before collecting contact details.</div></section>'+
+      '</div><footer class="aura-footer">Generated by AURA Growth AI · '+esc(layout.label)+' · '+esc(theme.name)+' experience</footer></main>';
+
     return true;
   }catch(e){
     console.error('Public landing page load failed:',e);
