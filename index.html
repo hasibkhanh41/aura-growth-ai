@@ -1880,6 +1880,14 @@ button{
 
                 <button
                     class="nav-item"
+                    onclick="showSection('offers',this)"
+                >
+                    <span class="nav-icon">◎</span>
+                    <span>Offers</span>
+                </button>
+
+                <button
+                    class="nav-item"
                     onclick="showSection('audience',this)"
                 >
                     <span class="nav-icon">◉</span>
@@ -2397,6 +2405,101 @@ button{
   box-shadow:0 0 0 3px rgba(142,53,255,.10);
 }
 </style>
+<section id="offersPage" class="aura-page" style="display:none;">
+  <div class="module-shell">
+    <div class="module-head">
+      <div>
+        <span class="module-badge">OFFER SETUP</span>
+        <h1>Offers</h1>
+        <p>Save the offer information AURA will use across research, audience, funnel and campaign workflows.</p>
+      </div>
+      <div class="module-status">● Workspace data</div>
+    </div>
+
+    <div class="module-grid">
+      <label>
+        Offer Name
+        <input id="offerName" type="text" placeholder="AI Productivity Software">
+      </label>
+
+      <label>
+        Offer Type
+        <select id="offerType">
+          <option value="lead_generation">Lead Generation</option>
+          <option value="sale">Sale</option>
+          <option value="trial">Free Trial</option>
+          <option value="app_install">App Install</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label>
+        Provider / Network
+        <input id="offerProvider" type="text" placeholder="Test Provider">
+      </label>
+
+      <label>
+        Offer URL
+        <input id="offerUrl" type="url" placeholder="https://example.com/offer">
+      </label>
+
+      <label>
+        Target Market
+        <select id="offerMarket">
+          <option value="USA">USA</option>
+          <option value="UK">United Kingdom</option>
+          <option value="Canada">Canada</option>
+          <option value="Australia">Australia</option>
+          <option value="Germany">Germany</option>
+          <option value="global">Global</option>
+        </select>
+      </label>
+
+      <label>
+        Niche
+        <input id="offerNiche" type="text" placeholder="AI Tools / Productivity">
+      </label>
+
+      <label>
+        Payout
+        <input id="offerPayout" type="number" min="0" step="0.01" placeholder="25">
+      </label>
+
+      <label>
+        Conversion Type
+        <select id="offerConversion">
+          <option value="lead">Lead</option>
+          <option value="sale">Sale</option>
+          <option value="trial">Trial</option>
+          <option value="install">Install</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label class="full">
+        Description
+        <input id="offerDescription" type="text" placeholder="Short description of the offer and who it is for.">
+      </label>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+      <button type="button" class="module-button" onclick="saveAURAOffer()">Save Offer →</button>
+    </div>
+
+    <div id="offerStatus" class="module-result" style="min-height:60px;margin-top:14px;">No offer saved yet.</div>
+
+    <div style="margin-top:22px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;">
+        <div style="font-size:14px;font-weight:800;">Saved Offers</div>
+        <button type="button" class="module-button small" onclick="loadAURAOffers()">Refresh</button>
+      </div>
+      <div id="offersList" class="approval-list">
+        <div class="content-empty-state">Loading offers...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="researchPage" class="aura-page" style="display:none;">
 
   <div style="
@@ -4552,13 +4655,14 @@ function showSection(section, element){
   });
   document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
   if(element) element.classList.add('active');
-  const pages={dashboard:'dashboardPage',research:'researchPage',audience:'audiencePage',content:'contentPage',funnel:'funnelPage',campaigns:'campaignsPage',reports:'reportsPage',approvals:'approvalsPage',settings:'settingsPage'};
+  const pages={dashboard:'dashboardPage',research:'researchPage',offers:'offersPage',audience:'audiencePage',content:'contentPage',funnel:'funnelPage',campaigns:'campaignsPage',reports:'reportsPage',approvals:'approvalsPage',settings:'settingsPage'};
   document.querySelectorAll('.aura-page').forEach(x=>x.style.display='none');
   const page=document.getElementById(pages[section]);
   if(page) page.style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
   if(section==='dashboard') loadEasyDashboard();
   if(section==='research') loadResearchIntelligence();
+  if(section==='offers') loadAURAOffers();
   if(section==='audience') loadAudienceIntelligence();
   if(section==='reports') loadDashboardData();
   if(section==='approvals') loadApprovals();
@@ -4693,6 +4797,125 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('campaignBudget')?.addEventListener('input',updateCampaignApprovalStatus);
 });
 
+
+/* =========================================================
+   OFFER SETUP
+   ========================================================= */
+
+async function loadAURAOffers(){
+  const list=document.getElementById('offersList');
+  if(!list)return;
+
+  const user=await getCurrentAURAUser();
+  if(!user)return;
+
+  const businessId=await getBusinessId(user);
+  if(!businessId)return;
+
+  try{
+    const {data,error}=await supabaseClient
+      .from('offers')
+      .select('id,offer_name,offer_type,provider_name,provider_url,niche,market,description,payout,payout_currency,conversion_type,status,created_at,source_data')
+      .eq('business_id',businessId)
+      .order('created_at',{ascending:false})
+      .limit(20);
+
+    if(error)throw error;
+
+    if(!data?.length){
+      list.innerHTML='<div class="content-empty-state">No offers saved yet.</div>';
+      return;
+    }
+
+    list.innerHTML=data.map(offer=>{
+      const payout=offer.payout==null?'—':String(offer.payout)+' '+String(offer.payout_currency||'USD');
+      const source=String(offer.source_data?.source_type||'Test / Authorized');
+      return '<div class="approval-item" style="align-items:flex-start;">'+
+        '<div style="min-width:0;">'+
+          '<strong>'+escapeHtml(String(offer.offer_name||'Unnamed offer'))+'</strong>'+
+          '<span>'+escapeHtml(String(offer.market||''))+' · '+escapeHtml(String(offer.niche||''))+' · '+escapeHtml(String(offer.offer_type||'').replace(/_/g,' '))+'</span>'+
+          '<span>'+escapeHtml(String(offer.provider_name||'Provider not set'))+' · '+escapeHtml(payout)+' · '+escapeHtml(String(offer.conversion_type||'conversion'))+'</span>'+
+          '<span>'+escapeHtml(source)+' · '+escapeHtml(String(offer.status||'active'))+'</span>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }catch(e){
+    console.error('Offer read failed:',e);
+    list.innerHTML='<div class="content-empty-state">Offers could not be loaded. Check workspace data permissions.</div>';
+  }
+}
+
+async function saveAURAOffer(){
+  const status=document.getElementById('offerStatus');
+  const name=document.getElementById('offerName')?.value.trim();
+  const provider=document.getElementById('offerProvider')?.value.trim();
+  const url=document.getElementById('offerUrl')?.value.trim();
+  const niche=document.getElementById('offerNiche')?.value.trim();
+  const description=document.getElementById('offerDescription')?.value.trim();
+  const market=document.getElementById('offerMarket')?.value||'USA';
+  const offerType=document.getElementById('offerType')?.value||'lead_generation';
+  const conversion=document.getElementById('offerConversion')?.value||'lead';
+  const payoutRaw=document.getElementById('offerPayout')?.value;
+
+  if(!name){
+    showToast('Please enter an offer name.');
+    return;
+  }
+
+  if(payoutRaw!=='' && Number(payoutRaw)<0){
+    showToast('Payout cannot be negative.');
+    return;
+  }
+
+  if(url){
+    try{
+      const parsed=new URL(url);
+      if(parsed.protocol!=='http:' && parsed.protocol!=='https:') throw new Error();
+    }catch(_){
+      showToast('Please enter a valid http/https offer URL.');
+      return;
+    }
+  }
+
+  const user=await getCurrentAURAUser();
+  if(!user){showToast('Please login first.');return;}
+
+  const businessId=await getBusinessId(user);
+  if(!businessId){showToast('Business workspace not found.');return;}
+
+  const payload={
+    business_id:businessId,
+    offer_name:name,
+    offer_type:offerType,
+    provider_name:provider||null,
+    provider_url:url||null,
+    niche:niche||null,
+    market,
+    description:description||null,
+    payout:payoutRaw===''?null:Number(payoutRaw),
+    payout_currency:'USD',
+    conversion_type:conversion,
+    requirements:{},
+    target_audience:{},
+    score:null,
+    score_breakdown:{},
+    source_data:{source_type:'Test / Authorized'},
+    status:'active'
+  };
+
+  try{
+    const {error}=await supabaseClient.from('offers').insert(payload);
+    if(error)throw error;
+
+    if(status)status.textContent='Offer saved successfully.';
+    showToast('✓ Offer saved successfully.');
+    await loadAURAOffers();
+  }catch(e){
+    console.error('Offer save failed:',e);
+    if(status)status.textContent='Offer could not be saved.';
+    showToast('❌ '+(e?.message||'Offer save failed.'));
+  }
+}
 
 /* =========================================================
    AUDIENCE INTELLIGENCE
