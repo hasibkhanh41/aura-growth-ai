@@ -1,7 +1,7 @@
 (function(){
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const cleanText=v=>String(v??'').replace(/<\/?(h1|h2|h3|h4|p|strong|em|br|ul|ol|li)[^>]*>/gi,' ').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
-  const css=\`
+  const css=`
     .aura-live-preview{margin-top:18px;border:1px solid #292d51;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#0d1023,#080a18);box-shadow:0 20px 60px rgba(0,0,0,.28)}
     .aura-variant-bar{padding:16px;border-bottom:1px solid #292d51;background:rgba(8,10,24,.9)}
     .aura-variant-title{font-size:12px;font-weight:900;color:#fff;margin-bottom:5px}
@@ -27,8 +27,7 @@
     .aura-live-section-body{color:#aeb4ce;line-height:1.75;white-space:pre-wrap}
     .aura-live-section .aura-live-cta{margin-top:14px;height:42px;font-size:12px}
     @media(max-width:900px){.aura-variant-grid{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:700px){.aura-variant-grid{grid-template-columns:1fr 1fr}.aura-live-hero{padding:30px 18px 24px}.aura-live-hero h2{font-size:27px}.aura-live-form{flex-direction:column}.aura-live-sections{padding:4px 18px 22px}}
-  \`;
+    @media(max-width:700px){.aura-variant-grid{grid-template-columns:1fr 1fr}.aura-live-hero{padding:30px 18px 24px}.aura-live-hero h2{font-size:27px}.aura-live-form{flex-direction:column}.aura-live-sections{padding:4px 18px 22px}}`;
   const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
 
   window.renderAURALiveFunnelPreview=async function(data,businessId){
