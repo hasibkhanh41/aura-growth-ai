@@ -2300,6 +2300,21 @@ button{
     @media(max-width:600px){#dashboardPage .easy-dash{padding:20px 16px 30px}#dashboardPage .easy-head{align-items:flex-start;flex-direction:column}#dashboardPage .easy-stats{grid-template-columns:1fr 1fr}#dashboardPage .easy-btn{width:100%}.easy-actions{width:100%}}
   </style>
   <div class="easy-dash">
+    <div id="auraOfferIntakeCard" style="margin:0 0 22px;padding:20px;border:1px solid #292d51;border-radius:18px;background:linear-gradient(145deg,rgba(14,17,37,.96),rgba(8,11,26,.98));box-shadow:0 16px 45px rgba(0,0,0,.22);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:11px;color:#b65cff;font-weight:800;letter-spacing:.08em;text-transform:uppercase;">CPA / Affiliate Offer</div>
+          <h2 style="margin:5px 0 6px;font-size:20px;">Analyze a new offer</h2>
+          <p style="margin:0;color:#8e93b5;font-size:12px;line-height:1.6;">Paste an authorized affiliate/CPA offer URL. AURA will save it as a pending analysis.</p>
+        </div>
+        <div id="auraOfferIntakeStatus" style="font-size:11px;color:#8e93b5;min-height:18px;text-align:right;"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+        <input id="auraOfferUrlInput" type="url" inputmode="url" autocomplete="url" placeholder="https://..." style="flex:1;min-width:240px;height:46px;padding:0 14px;border:1px solid #292d51;border-radius:11px;background:#080b1b;color:#fff;outline:none;">
+        <button id="auraOfferAnalyzeButton" type="button" class="easy-btn primary" onclick="submitAURAOfferInput()" style="min-width:150px;">Analyze Offer →</button>
+      </div>
+    </div>
+
     <div class="easy-head">
       <div>
         <h1>Dashboard</h1>
@@ -5469,6 +5484,84 @@ async function runAudienceIntelligence(){
     }
 
     if(auraActiveController && !auraRunCancelled) auraActiveController=null;
+  }
+}
+
+
+async function submitAURAOfferInput(){
+  const input=document.getElementById('auraOfferUrlInput');
+  const button=document.getElementById('auraOfferAnalyzeButton');
+  const status=document.getElementById('auraOfferIntakeStatus');
+  const raw=String(input?.value||'').trim();
+
+  if(!raw){
+    if(status) status.textContent='Enter an offer URL first.';
+    return;
+  }
+
+  let parsed;
+  try{
+    parsed=new URL(raw);
+    if(!['http:','https:'].includes(parsed.protocol)) throw new Error('Only HTTP/HTTPS URLs are allowed.');
+  }catch(_){
+    if(status) status.textContent='Please enter a valid HTTP/HTTPS offer URL.';
+    return;
+  }
+
+  const user=await getCurrentAURAUser();
+  if(!user){
+    if(status) status.textContent='Please sign in first.';
+    return;
+  }
+
+  const businessId=await getBusinessId(user);
+  if(!businessId){
+    if(status) status.textContent='Business workspace not found.';
+    return;
+  }
+
+  if(button){button.disabled=true;button.textContent='Saving…';}
+  if(status) status.textContent='Saving offer intake…';
+
+  try{
+    const payload={
+      business_id:businessId,
+      offer_name:'Pending Offer Analysis',
+      offer_type:'CPA / Affiliate',
+      provider_name:null,
+      provider_url:parsed.origin,
+      niche:null,
+      market:null,
+      description:null,
+      payout:null,
+      payout_currency:'USD',
+      conversion_type:null,
+      requirements:{},
+      target_audience:{},
+      score:null,
+      score_breakdown:{},
+      source_data:{
+        source_type:'AURA Offer Intake',
+        offer_url:parsed.href,
+        intake_status:'pending_analysis',
+        received_at:new Date().toISOString()
+      },
+      status:'pending_analysis'
+    };
+
+    const {data,error}=await supabaseClient.from('offers').insert(payload).select('id').single();
+    if(error) throw error;
+
+    if(status) status.textContent='✓ Offer received. Ready for Offer Analyzer.';
+    if(input) input.value='';
+    showToast('✓ Offer received by AURA.');
+    return data?.id||null;
+  }catch(e){
+    console.error('Offer intake failed:',e);
+    if(status) status.textContent='Could not save offer: '+(e?.message||'Unknown error');
+    showToast('❌ Offer intake failed.');
+  }finally{
+    if(button){button.disabled=false;button.textContent='Analyze Offer →';}
   }
 }
 
